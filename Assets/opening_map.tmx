@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.2" tiledversion="1.2.5" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="64" tileheight="64" infinite="0" nextlayerid="7" nextobjectid="1">
+ <tileset firstgid="1" name="dungeon_features" tilewidth="64" tileheight="64" tilecount="15" columns="0">
+  <grid orientation="orthogonal" width="1" height="1"/>
+  <tile id="0">
+   <image width="64" height="64" source="Assets/dungeon_blcorner_wall.png"/>
+  </tile>
+  <tile id="1">
+   <image width="64" height="64" source="Assets/dungeon_bottom_wall.png"/>
+  </tile>
+  <tile id="2">
+   <image width="64" height="64" source="Assets/dungeon_brcorner_wall.png"/>
+  </tile>
+  <tile id="3">
+   <image width="64" height="64" source="Assets/dungeon_left_wall.png"/>
+  </tile>
+  <tile id="4">
+   <image width="64" height="64" source="Assets/dungeon_right_wall.png"/>
+  </tile>
+  <tile id="5">
+   <image width="64" height="64" source="Assets/dungeon_tlcorner_wall.png"/>
+  </tile>
+  <tile id="6">
+   <image width="64" height="64" source="Assets/dungeon_top_wall.png"/>
+  </tile>
+  <tile id="7">
+   <image width="64" height="64" source="Assets/dungeon_trcorner_wall.png"/>
+  </tile>
+  <tile id="8">
+   <image width="64" height="64" source="Assets/dungeon_floor_0.png"/>
+  </tile>
+  <tile id="9">
+   <image width="64" height="64" source="Assets/dungeon_floor_1.png"/>
+  </tile>
+  <tile id="10">
+   <image width="64" height="64" source="Assets/dungeon_floor_2.png"/>
+  </tile>
+  <tile id="11">
+   <image width="64" height="64" source="Assets/dungeon_floor_3.png"/>
+  </tile>
+  <tile id="12">
+   <image width="64" height="64" source="Assets/dungeon_floor_4.png"/>
+  </tile>
+  <tile id="13">
+   <image width="64" height="64" source="Assets/dungeon_floor_5.png"/>
+  </tile>
+  <tile id="14">
+   <image width="64" height="64" source="Assets/dungeon_floor_6.png"/>
+  </tile>
+ </tileset>
+ <layer id="5" name="walls_layer" width="15" height="15">
+  <data encoding="csv">
+6,7,7,7,7,7,7,7,7,7,7,7,7,7,8,
+4,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+4,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+4,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+4,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+4,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+4,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+4,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+4,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+4,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+4,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+4,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+4,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+4,0,0,0,0,0,0,0,0,0,0,0,0,0,5,
+1,2,2,2,2,2,0,0,0,2,2,2,2,2,3
+</data>
+ </layer>
+ <layer id="6" name="floor_layer" width="15" height="15">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,9,9,9,9,9,9,9,9,9,9,9,9,9,0,
+0,9,9,9,9,9,9,9,9,9,9,9,9,9,0,
+0,9,9,9,9,9,9,9,9,9,9,9,9,9,0,
+0,9,9,9,9,9,9,9,9,9,9,9,9,9,0,
+0,9,9,9,9,9,9,9,9,9,9,9,9,9,0,
+0,9,9,9,9,9,9,9,9,9,9,9,9,9,0,
+0,9,9,9,9,9,9,9,9,9,9,9,9,9,0,
+0,9,9,9,9,9,9,9,9,9,9,9,9,9,0,
+0,9,9,9,9,9,9,9,9,9,9,9,9,9,0,
+0,9,9,9,9,9,9,9,9,9,9,9,9,9,0,
+0,9,9,9,9,9,9,9,9,9,9,9,9,9,0,
+0,9,9,9,9,9,9,9,9,9,9,9,9,9,0,
+0,9,9,9,9,9,9,9,9,9,9,9,9,9,0,
+0,0,0,0,0,0,9,9,9,0,0,0,0,0,0
+</data>
+ </layer>
+</map>
