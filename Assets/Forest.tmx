@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.2" tiledversion="1.2.4" orientation="orthogonal" renderorder="right-down" width="15" height="15" tilewidth="64" tileheight="64" infinite="0" nextlayerid="6" nextobjectid="1">
+ <tileset firstgid="1" name="Forest_features" tilewidth="66" tileheight="68" tilecount="21" columns="0">
+  <grid orientation="orthogonal" width="1" height="1"/>
+  <tile id="5">
+   <image width="64" height="64" source="forest_tree_01.png"/>
+  </tile>
+  <tile id="9">
+   <image width="64" height="64" source="forest_cave.png"/>
+   <objectgroup draworder="index">
+    <object id="1" x="11" y="21" width="41" height="43"/>
+   </objectgroup>
+  </tile>
+  <tile id="11">
+   <image width="64" height="64" source="forest_tree_top_01.png"/>
+  </tile>
+  <tile id="12">
+   <image width="64" height="64" source="forest_tree_trunk.png"/>
+   <objectgroup draworder="index">
+    <object id="3" x="0" y="-1" width="61" height="64"/>
+   </objectgroup>
+  </tile>
+  <tile id="13">
+   <image width="64" height="64" source="hole.png"/>
+   <objectgroup draworder="index">
+    <object id="1" x="7" y="8" width="50" height="51"/>
+   </objectgroup>
+  </tile>
+  <tile id="14">
+   <image width="64" height="60" source="forest_hill_01.png"/>
+  </tile>
+  <tile id="15">
+   <image width="64" height="64" source="forest_hill_02.png"/>
+  </tile>
+  <tile id="18">
+   <image width="64" height="65" source="forest_dirt.png"/>
+  </tile>
+  <tile id="19">
+   <image width="66" height="64" source="forest_ground.png"/>
+  </tile>
+  <tile id="20">
+   <image width="63" height="64" source="forest_grass_01.bmp"/>
+  </tile>
+  <tile id="21">
+   <image width="64" height="64" source="forest_cave_tileset_01.png"/>
+   <objectgroup draworder="index">
+    <object id="1" x="10" y="26" width="44" height="35"/>
+   </objectgroup>
+  </tile>
+  <tile id="22">
+   <image width="62" height="64" source="cave_tileset_01.png"/>
+  </tile>
+  <tile id="23">
+   <image width="64" height="64" source="cave_tileset_03.png"/>
+  </tile>
+  <tile id="24">
+   <image width="64" height="68" source="cave_tileset_04.png"/>
+  </tile>
+  <tile id="25">
+   <image width="64" height="63" source="cave_tileset_05.png"/>
+  </tile>
+  <tile id="26">
+   <image width="64" height="64" source="grass_00.jpg"/>
+  </tile>
+  <tile id="27">
+   <image width="64" height="64" source="forest_tree_03.png"/>
+  </tile>
+  <tile id="28">
+   <image width="64" height="64" source="grass_land_00.png"/>
+  </tile>
+  <tile id="29">
+   <image width="62" height="64" source="mountain_landscape_00.png"/>
+  </tile>
+  <tile id="30">
+   <image width="63" height="64" source="mountain_landscape_01.png"/>
+  </tile>
+  <tile id="31">
+   <image width="64" height="64" source="mountain_landscape_03.png"/>
+  </tile>
+ </tileset>
+ <layer id="5" name="Dirt" width="15" height="15">
+  <properties>
+   <property name="Layer" value="Dirt"/>
+   <property name="sortingLayerName" value="Dirt"/>
+  </properties>
+  <data encoding="csv">
+20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
+20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
+20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
+20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
+20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
+20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
+20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
+20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
+20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
+20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
+20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
+20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
+20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
+20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,
+20,20,20,20,20,20,20,20,20,20,20,20,20,20,20
+</data>
+ </layer>
+ <layer id="4" name="Grass" width="15" height="15">
+  <properties>
+   <property name="Layer" value="Grass"/>
+   <property name="sortingLayerName" value="Grass"/>
+  </properties>
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,29,0,29,29,29,0,0,0,0,0,0,
+0,0,0,0,29,29,29,29,29,0,0,0,0,0,0,
+0,0,0,0,29,29,29,29,29,0,0,0,0,0,0,
+0,0,0,0,29,29,29,29,29,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="3" name="Hills" width="15" height="15">
+  <properties>
+   <property name="Layer" value="Hills"/>
+   <property name="sortingLayerName" value="Hills"/>
+  </properties>
+  <data encoding="csv">
+0,0,0,30,30,30,30,30,0,0,0,0,0,0,0,
+0,0,0,31,21,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="2" name="Caves" width="15" height="15">
+  <properties>
+   <property name="Layer" value="Caves"/>
+   <property name="sortingLayerName" value="Caves"/>
+  </properties>
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,26,22,24,25,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="1" name="Trees" width="15" height="15">
+  <properties>
+   <property name="Layer" value="Trees"/>
+   <property name="sortingLayerName" value="Trees"/>
+  </properties>
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,28,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,13,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+</map>
