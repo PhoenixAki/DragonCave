@@ -19,6 +19,9 @@ class PlayerCharacter(arcade.AnimatedWalkingSprite):
         self.attacking = False
 
         self.money = 0
+        self.arrows = 20
+        self.boots = False
+        self.magic_book = False
 
         self.cur_texture_index = 0
 

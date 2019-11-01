@@ -2,6 +2,7 @@ from enum import Enum, auto
 import arcade
 import pathlib
 from PlayerCharacter import setup_character
+from Projectile import Projectile
 
 CHARACTER_FRAME_WIDTH = 64
 CHARACTER_FRAME_HEIGHT = 64
@@ -18,26 +19,6 @@ class MoveEnum(Enum):
     DOWN = auto()
     LEFT = auto()
     RIGHT = auto()
-
-
-class Projectile(arcade.Sprite):
-    def __init__(self, img_path: str, speed: int, direction: int, game_window):
-        super().__init__(img_path)
-        self.speed = speed
-        self.direction = direction
-        self.game = game_window
-
-    def move(self):
-        if self.direction == FACE_UP:
-            self.center_y += self.speed
-        elif self.direction == FACE_DOWN:
-            self.center_y -= self.speed
-        elif self.direction == FACE_LEFT:
-            self.center_x -= self.speed
-        elif self.direction == FACE_RIGHT:
-            self.center_x += self.speed
-        else:  # should be MoveEnum.NONE
-            pass
 
 
 class Map(arcade.Window):
@@ -95,6 +76,8 @@ class Map(arcade.Window):
         if self.character_projectile_list:
             for character_projectile in self.character_projectile_list:
                 character_projectile.move()
+
+        # check stuff that needs to be checked... depending on the map that we are one
 
         # check for projectile collisions with "wall_layer" and off screen
         # @@@@@@@@@@@@@@@@MAKE THIS GENERIC TO HOLD ANY PROJECTILE LIST@@@@@@@@@@@@
@@ -181,5 +164,4 @@ class Map(arcade.Window):
             self.character_projectile_list.append(new_arrow_sprite)
 
 # -------- UTILITY FUNCTIONS --------------------
-
 
