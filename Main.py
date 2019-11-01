@@ -3,7 +3,7 @@ import RPG_Map
 
 
 def main():
-    window: RPG_Map.Map2 = RPG_Map.Map2()
+    window: RPG_Map.Map = RPG_Map.Map()
     window.setup()
     arcade.run()
 
