@@ -3,10 +3,10 @@ import math
 from typing import List
 from arcade.draw_commands import Texture
 
-FACE_RIGHT = 1
-FACE_LEFT = 2
-FACE_UP = 3
-FACE_DOWN = 4
+FACE_RIGHT = 0
+FACE_LEFT = 1
+FACE_UP = 2
+FACE_DOWN = 3
 
 CHARACTER_FRAME_WIDTH = 64
 CHARACTER_FRAME_HEIGHT = 64

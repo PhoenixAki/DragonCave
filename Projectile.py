@@ -1,9 +1,9 @@
 import arcade
 
-FACE_RIGHT = 1
-FACE_LEFT = 2
-FACE_UP = 3
-FACE_DOWN = 4
+FACE_RIGHT = 0
+FACE_LEFT = 1
+FACE_UP = 2
+FACE_DOWN = 3
 
 
 class Projectile(arcade.Sprite):
