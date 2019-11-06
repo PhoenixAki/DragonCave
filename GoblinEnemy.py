@@ -1,59 +1,111 @@
 import arcade
+import math
+from typing import List
+from arcade.draw_commands import Texture
 
-CHARACTER_FRAME_WIDTH = 64
-CHARACTER_FRAME_HEIGHT = 64
+FACE_LEFT = 0
+FACE_RIGHT = 1
+FACE_UP = 2
+FACE_DOWN = 3
+
+GOBLIN_FRAME_WIDTH = 64
+GOBLIN_FRAME_HEIGHT = 64
 
 
 class GoblinEnemy(arcade.AnimatedWalkingSprite):
     def __init__(self, scale: float, center_x: float, center_y: float):
         super().__init__(scale=scale, center_x=center_x, center_y=center_y)
 
+        self.walk_left_textures = []
+        self.walk_right_textures = []
+        self.walk_down_textures = []
+        self.walk_up_textures = []
 
-def setup_goblin_enemy(sprite_sheet_path, scl, cent_x, cent_y):
+        self.state = FACE_DOWN
+        self.cur_texture_index = 0
+
+    def update_animation(self, delta_time: float = 1/30):
+        """
+        Logic for selecting the proper texture to use.
+        """
+
+        texture_list: List[Texture] = []
+
+        x1 = self.center_x
+        x2 = self.last_texture_change_center_x
+        y1 = self.center_y
+        y2 = self.last_texture_change_center_y
+        distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+        change_direction = True
+        if self.change_x < 0 < len(self.walk_left_textures) and self.state != FACE_LEFT:
+            self.state = FACE_LEFT
+        elif self.change_x > 0 < len(self.walk_right_textures) and self.state != FACE_RIGHT:
+            self.state = FACE_RIGHT
+        elif self.change_y < 0 < len(self.walk_down_textures) and self.state != FACE_DOWN:
+            self.state = FACE_DOWN
+        elif self.change_y > 0 < len(self.walk_up_textures) and self.state != FACE_UP:
+            self.state = FACE_UP
+        else:
+            change_direction = False
+
+        # if not moving, load first texture from walk textures (in place of standing textures)
+        if self.change_x == 0 and self.change_y == 0:
+            if self.state == FACE_LEFT:
+                self.texture = self.walk_left_textures[0]
+            elif self.state == FACE_RIGHT:
+                self.texture = self.walk_right_textures[0]
+            elif self.state == FACE_UP:
+                self.texture = self.walk_up_textures[0]
+            elif self.state == FACE_DOWN:
+                self.texture = self.walk_down_textures[0]
+
+        elif change_direction or distance >= self.texture_change_distance:
+            self.last_texture_change_center_x = self.center_x
+            self.last_texture_change_center_y = self.center_y
+
+            if self.state == FACE_LEFT:
+                texture_list = self.walk_left_textures
+            elif self.state == FACE_RIGHT:
+                texture_list = self.walk_right_textures
+            elif self.state == FACE_UP:
+                texture_list = self.walk_up_textures
+            elif self.state == FACE_DOWN:
+                texture_list = self.walk_down_textures
+
+            if len(texture_list) == 0:
+                raise RuntimeError("error loading walk animations in goblin update_animation")
+
+            # check if done playing the texture
+            self.cur_texture_index += 1
+            if self.cur_texture_index >= len(texture_list):
+                self.cur_texture_index = 0
+
+            self.texture = texture_list[self.cur_texture_index]
+
+
+def setup_goblin(sprite_sheet_path, scl, cent_x, cent_y):
     goblin = GoblinEnemy(scale=scl, center_x=cent_x, center_y=cent_y)
 
-    # character standing left/right frames setup
-    frame = arcade.load_texture(str(sprite_sheet_path), 0, CHARACTER_FRAME_HEIGHT * 9,
-                                height=CHARACTER_FRAME_HEIGHT,
-                                width=CHARACTER_FRAME_WIDTH)
-    goblin.stand_left_textures = []
-    goblin.stand_left_textures.append(frame)
-
-    frame = arcade.load_texture(str(sprite_sheet_path), 0, CHARACTER_FRAME_HEIGHT * 11,
-                                height=CHARACTER_FRAME_HEIGHT,
-                                width=CHARACTER_FRAME_WIDTH)
-    goblin.stand_right_textures = []
-    goblin.stand_right_textures.append(frame)
-
-    # no stand up and stand down textures??
-
-    # setup main character textures
-    goblin.texture = frame
-
-    goblin.walk_left_textures = []
-    goblin.walk_right_textures = []
-    goblin.walk_down_textures = []
-    goblin.walk_up_textures = []
-
-    for image_num in range(11):
-        frame = arcade.load_texture(str(sprite_sheet_path), image_num * CHARACTER_FRAME_WIDTH,
-                                    CHARACTER_FRAME_HEIGHT * 2, height=CHARACTER_FRAME_HEIGHT,
-                                    width=CHARACTER_FRAME_WIDTH)
-        goblin.walk_up_textures.append(frame)
-    for image_num in range(11):
-        frame = arcade.load_texture(str(sprite_sheet_path), image_num * CHARACTER_FRAME_WIDTH,
-                                    CHARACTER_FRAME_HEIGHT * 3, height=CHARACTER_FRAME_HEIGHT,
-                                    width=CHARACTER_FRAME_WIDTH)
+    for image_num in range(7):
+        frame = arcade.load_texture(str(sprite_sheet_path), image_num * GOBLIN_FRAME_WIDTH,
+                                    GOBLIN_FRAME_HEIGHT * 3, height=GOBLIN_FRAME_HEIGHT,
+                                    width=GOBLIN_FRAME_WIDTH)
         goblin.walk_left_textures.append(frame)
-    for image_num in range(11):
-        frame = arcade.load_texture(str(sprite_sheet_path), image_num * CHARACTER_FRAME_WIDTH,
-                                    CHARACTER_FRAME_HEIGHT * 0, height=CHARACTER_FRAME_HEIGHT,
-                                    width=CHARACTER_FRAME_WIDTH)
-        goblin.walk_down_textures.append(frame)
-    for image_num in range(11):
-        frame = arcade.load_texture(str(sprite_sheet_path), image_num * CHARACTER_FRAME_WIDTH,
-                                    CHARACTER_FRAME_HEIGHT * 1, height=CHARACTER_FRAME_HEIGHT,
-                                    width=CHARACTER_FRAME_WIDTH)
+
+        frame = arcade.load_texture(str(sprite_sheet_path), image_num * GOBLIN_FRAME_WIDTH,
+                                    GOBLIN_FRAME_HEIGHT * 1, height=GOBLIN_FRAME_HEIGHT,
+                                    width=GOBLIN_FRAME_WIDTH)
         goblin.walk_right_textures.append(frame)
+
+        frame = arcade.load_texture(str(sprite_sheet_path), image_num * GOBLIN_FRAME_WIDTH,
+                                    GOBLIN_FRAME_HEIGHT * 2, height=GOBLIN_FRAME_HEIGHT,
+                                    width=GOBLIN_FRAME_WIDTH)
+        goblin.walk_up_textures.append(frame)
+
+        frame = arcade.load_texture(str(sprite_sheet_path), image_num * GOBLIN_FRAME_WIDTH,
+                                    GOBLIN_FRAME_HEIGHT * 0, height=GOBLIN_FRAME_HEIGHT,
+                                    width=GOBLIN_FRAME_WIDTH)
+        goblin.walk_down_textures.append(frame)
 
     return goblin

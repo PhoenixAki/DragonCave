@@ -1,7 +1,7 @@
 import arcade
 
-FACE_RIGHT = 0
-FACE_LEFT = 1
+FACE_LEFT = 0
+FACE_RIGHT = 1
 FACE_UP = 2
 FACE_DOWN = 3
 
@@ -22,5 +22,3 @@ class Projectile(arcade.Sprite):
             self.center_x -= self.speed
         elif self.direction == FACE_RIGHT:
             self.center_x += self.speed
-        else:  # should be MoveEnum.NONE
-            pass

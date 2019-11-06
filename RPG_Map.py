@@ -2,10 +2,11 @@ from enum import Enum, auto
 import arcade
 import pathlib
 import PlayerCharacter
+import GoblinEnemy
 from Projectile import Projectile
 
-FACE_RIGHT = 0
-FACE_LEFT = 1
+FACE_LEFT = 0
+FACE_RIGHT = 1
 FACE_UP = 2
 FACE_DOWN = 3
 
@@ -59,22 +60,40 @@ class Map(arcade.Window):
         self.character_projectile_list = arcade.SpriteList()
 
         # setup projectiles
-        self.right_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'right_arrow.png'
         self.left_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'left_arrow.png'
+        self.right_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'right_arrow.png'
         self.up_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'up_arrow.png'
         self.down_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'down_arrow.png'
-        self.arrow_sprites = [self.right_arrow_sprite_path, self.left_arrow_sprite_path,
+        self.arrow_sprites = [self.left_arrow_sprite_path, self.right_arrow_sprite_path,
                               self.up_arrow_sprite_path, self.down_arrow_sprite_path]
 
         # setup physics engine
         self.simple_Physics = arcade.PhysicsEngineSimple(self.character, self.wall_list)
+
+        # test goblins
+        goblin_sheet_path = pathlib.Path.cwd() / 'Assets' / 'Enemies' / 'goblinsword.png'
+        self.goblin_1 = GoblinEnemy.setup_goblin(goblin_sheet_path, 1, 200, 400)
+        self.goblin_2 = GoblinEnemy.setup_goblin(goblin_sheet_path, 1, 300, 600)
+        self.goblin_3 = GoblinEnemy.setup_goblin(goblin_sheet_path, 1, 400, 600)
+        self.goblin_4 = GoblinEnemy.setup_goblin(goblin_sheet_path, 1, 500, 600)
+        self.goblin_1.change_x = 2
+        self.goblin_2.change_y = -2
+        self.goblin_3.change_x = -2
+        self.goblin_4.change_y = 2
+        self.goblin_list = arcade.SpriteList()
+        self.goblin_list.append(self.goblin_1)
+        self.goblin_list.append(self.goblin_2)
+        self.goblin_list.append(self.goblin_3)
+        self.goblin_list.append(self.goblin_4)
 
     def on_update(self, delta_time: float):
 
         self.frame_time += delta_time
         if self.frame_time > 1/30:  # 30fps for now?
             self.char_list.update()
+            self.goblin_list.update()
             self.char_list.update_animation()
+            self.goblin_list.update_animation()
             self.frame_time = 0
 
         # check for collisions
@@ -98,6 +117,7 @@ class Map(arcade.Window):
         self.floor_list.draw()
         self.wall_list.draw()
         self.char_list.draw()
+        self.goblin_list.draw()
         self.character_projectile_list.draw()
 
     def on_key_press(self, key: int, modifiers: int):
