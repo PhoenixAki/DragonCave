@@ -23,7 +23,7 @@ class Map(arcade.Window):
     def __init__(self):
         super().__init__(960, 960, "Dragoncave")
         # initialize tile maps
-        self.map_location = pathlib.Path.cwd() / 'Assets' / 'opening_map.tmx'
+        self.map_location = pathlib.Path.cwd() / 'Assets' / 'Forest.tmx'
         self.floor_list = None
         self.wall_list = None
 
@@ -91,9 +91,19 @@ class Map(arcade.Window):
         self.frame_time += delta_time
         if self.frame_time > 1/30:  # 30fps for now?
             self.char_list.update()
-            self.goblin_list.update()
             self.char_list.update_animation()
-            self.goblin_list.update_animation()
+
+            if self.map_location == pathlib.Path.cwd() / 'Assets' / 'Forest.tmx':
+                pass
+                # sethia do stuff here
+                # if character is on cave entrance:
+                    # set self.map_location to opening_map.txp and change location of charater to the entrance of the
+                    # dungeon
+
+            elif self.map_location == pathlib.Path.cwd() / 'Assets' / 'opening_map.tmx':
+                self.goblin_list.update()
+                self.goblin_list.update_animation()
+
             self.frame_time = 0
 
         # check for collisions
@@ -117,8 +127,14 @@ class Map(arcade.Window):
         self.floor_list.draw()
         self.wall_list.draw()
         self.char_list.draw()
-        self.goblin_list.draw()
         self.character_projectile_list.draw()
+
+        if self.map_location == pathlib.Path.cwd() / 'Assets' / 'Forest.tmx':
+            pass
+            # sethia do stuff here
+        elif self.map_location == pathlib.Path.cwd() / 'Assets' / 'opening_map.tmx':
+            self.goblin_list.draw()
+
 
     def on_key_press(self, key: int, modifiers: int):
         if not self.character.attacking:
