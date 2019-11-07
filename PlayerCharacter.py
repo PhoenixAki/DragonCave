@@ -169,3 +169,4 @@ def setup_character(sprite_sheet_path, scl, cent_x, cent_y) -> PlayerCharacter:
         character.spear_right_textures.append(frame)
 
     return character
+
