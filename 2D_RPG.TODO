@@ -1,0 +1,26 @@
+Project TODO:
+ ☐ Work on using update() physics. 
+         ☐ Wrong error messages 
+             <"Error, collision occurred while player WASN'T playing"> 
+         ☐ Need logistics to work with update()
+             In order to add player interactions, we need to make sure we don't get the error message while using update() from arcade. 
+         ☐ Possibility?
+             We can recreate our own type of update() using the source code provided below (update() from arcade library). 
+             http://arcade.academy/_modules/arcade/physics_engines.html#PhysicsEngineSimple.update
+             Definitely take use of arcade.get_closest_sprite logic to start with interaction. 
+             ex: 
+                update() 
+                arcade.get_closest_sprite
+                if(__certain object on the map__ exists within distance (maybe use getDistance()):
+                  display dialogue pop up 
+                    if(user chooses to talk):
+                      display other actions 
+                    else:
+                      keep showing the first dialogue
+                elif(__edge on the map where cave image exists__ (by checking if cave image exsist using get_closest_sprite):
+                  if(player_current_position == cave_image_position): 
+                    proceed to next map -> change map (map changes should be handled with cases) 
+                  else:
+                    do nothing 
+                else
+                  keep running the game 
