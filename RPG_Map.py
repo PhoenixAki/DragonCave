@@ -17,6 +17,7 @@ class Map(arcade.Window):
         self.goblin_path = pathlib.Path.cwd() / 'Assets' / 'Enemies' / 'goblinsword.png'
         self.forest_map = pathlib.Path.cwd() / 'Assets' / 'Forest.tmx'
         self.cave_1_map = pathlib.Path.cwd() / 'Assets' / 'Cave_1.tmx'
+        self.cave_2_map = pathlib.Path.cwd() / 'Assets' / 'Cave_2.tmx'
         self.current_map = None
         self.current_map_tmx = None
         self.floor_list = None
@@ -45,7 +46,7 @@ class Map(arcade.Window):
 
     def setup(self):
         # setup tile maps
-        self.current_map = self.forest_map
+        self.current_map = self.cave_2_map
         self.current_map_tmx = arcade.tilemap.read_tmx(str(self.current_map))
         self.floor_list = arcade.tilemap.process_layer(self.current_map_tmx, "floor_layer", 1)
         self.wall_list = arcade.tilemap.process_layer(self.current_map_tmx, "walls_layer", 1)
@@ -74,6 +75,9 @@ class Map(arcade.Window):
         self.simple_Physics = arcade.PhysicsEngineSimple(self.character, self.wall_list)
 
     def on_update(self, delta_time: float):
+
+        # room transition
+            # if current map is forest
 
         self.frame_time += delta_time
         if self.frame_time > 1 / 30:  # 30fps for now?
