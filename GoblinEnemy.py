@@ -21,8 +21,17 @@ class GoblinEnemy(arcade.AnimatedWalkingSprite):
         self.walk_down_textures = []
         self.walk_up_textures = []
 
-        self.state = FACE_DOWN
+        self.state = None
         self.cur_texture_index = 0
+
+    def update(self):
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+
+        if self.left < 65 or self.right > 895:
+            self.change_x *= -1
+        elif self.top > 895 or self.bottom < 65:
+            self.change_y *= -1
 
     def update_animation(self, delta_time: float = 1/30):
         """
@@ -84,7 +93,7 @@ class GoblinEnemy(arcade.AnimatedWalkingSprite):
             self.texture = texture_list[self.cur_texture_index]
 
 
-def setup_goblin(sprite_sheet_path, scl, cent_x, cent_y):
+def setup_goblin(sprite_sheet_path, scl, change_x, change_y, cent_x, cent_y):
     goblin = GoblinEnemy(scale=scl, center_x=cent_x, center_y=cent_y)
 
     for image_num in range(7):
@@ -108,4 +117,6 @@ def setup_goblin(sprite_sheet_path, scl, cent_x, cent_y):
                                     width=GOBLIN_FRAME_WIDTH)
         goblin.walk_down_textures.append(frame)
 
+    goblin.change_x = change_x
+    goblin.change_y = change_y
     return goblin
