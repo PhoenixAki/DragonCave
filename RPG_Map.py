@@ -2,6 +2,8 @@ import arcade
 import pathlib
 import PlayerCharacter
 import GoblinEnemy
+import WyvernEnemy
+import DragonBoss
 from Projectile import Projectile
 
 FACE_LEFT = 0
@@ -38,8 +40,11 @@ class Map(arcade.Window):
         self.char_list = None
         self.character_projectile_list = None
         self.character_speed = 2
-        self.goblin_list = None
+        self.cave_1_enemy_list = None
         self.goblin_kill_count = 0
+
+        # dragon boss
+        self.dragonboss = None
 
         # initialize physics engine
         self.simple_Physics = None
@@ -61,8 +66,12 @@ class Map(arcade.Window):
         self.character_projectile_list = arcade.SpriteList()
 
         # setup goblins in cave 1
-        self.goblin_list = arcade.SpriteList()
-        self.setup_cave_1()
+        self.cave_1_enemy_list = arcade.SpriteList()
+        self.setup_cave_1_goblins()
+        self.setup_cave_1_wyverns()
+
+        # setup drgaon boss for cave 2
+        self.dragonboss = self.setup_cave_2_dragon_boss()
 
         # setup projectiles
         self.left_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'left_arrow.png'
@@ -110,18 +119,18 @@ class Map(arcade.Window):
         if self.current_map == self.cave_1_map:
             # check character arrow projectile collision with goblins
             for proj in self.character_projectile_list:
-                collisions = arcade.check_for_collision_with_list(proj, self.goblin_list)
+                collisions = arcade.check_for_collision_with_list(proj, self.cave_1_enemy_list)
                 if len(collisions) > 0:
                     collisions[0].kill()
                     proj.kill()
-                    self.goblin_kill_count += 1
+                    # self.goblin_kill_count += 1
             # check for collision with goblin and character
-            goblin_collisions = arcade.check_for_collision_with_list(self.character, self.goblin_list)
+            goblin_collisions = arcade.check_for_collision_with_list(self.character, self.cave_1_enemy_list)
             if len(goblin_collisions) > 0:
                 self.character.kill()
                 print("You lose.")
             # check if all goblins are killed and open door
-            if self.goblin_kill_count >= 4:
+            if len(self.cave_1_enemy_list) <= 0:
                 print("Room done (add door open later)")
                 # set current map to cave_1_wall_open
                 self.current_map = self.cave_1_wall_open_map
@@ -185,8 +194,11 @@ class Map(arcade.Window):
             # if current map is cave 1 - update goblin list
 
         if self.current_map == self.cave_1_map:
-            self.goblin_list.update()
-            self.goblin_list.update_animation()
+            self.cave_1_enemy_list.update()
+            self.cave_1_enemy_list.update_animation()
+        elif self.current_map == self.cave_2_map:
+            self.dragonboss.update()
+            self.dragonboss.update_animation()
 
         self.simple_Physics.update()
 
@@ -210,13 +222,13 @@ class Map(arcade.Window):
             pass
 
         elif self.current_map == self.cave_1_map:
-            self.goblin_list.draw()
+            self.cave_1_enemy_list.draw()
 
         elif self.current_map == self.cave_1_wall_open_map:
             pass
 
         elif self.current_map == self.cave_2_map:
-            pass
+            self.dragonboss.draw()
 
     def on_key_press(self, key: int, modifiers: int):
         if not self.character.attacking:
@@ -259,16 +271,29 @@ class Map(arcade.Window):
         new_arrow_sprite.center_x = self.character.center_x
         self.character_projectile_list.append(new_arrow_sprite)
 
-    def setup_cave_1(self):
+    def setup_cave_1_goblins(self):
         goblin1 = GoblinEnemy.setup_goblin(self.goblin_path, 1, 2, 0, 700, 200)
         goblin2 = GoblinEnemy.setup_goblin(self.goblin_path, 1, -2, 0, 600, 300)
         goblin3 = GoblinEnemy.setup_goblin(self.goblin_path, 1, 0, 2, 500, 400)
         goblin4 = GoblinEnemy.setup_goblin(self.goblin_path, 1, 0, -2, 400, 500)
-        self.goblin_list.append(goblin1)
-        self.goblin_list.append(goblin2)
-        self.goblin_list.append(goblin3)
-        self.goblin_list.append(goblin4)
+        self.cave_1_enemy_list.append(goblin1)
+        self.cave_1_enemy_list.append(goblin2)
+        self.cave_1_enemy_list.append(goblin3)
+        self.cave_1_enemy_list.append(goblin4)
+        
+    def setup_cave_1_wyverns(self):
+        wyvern1 = WyvernEnemy.setup_wyvern(0.9, 3, 0, 750, 250)
+        wyvern2 = WyvernEnemy.setup_wyvern(0.9, -3, 0, 650, 600)
+        wyvern3 = WyvernEnemy.setup_wyvern(0.9, 0, 3, 750, 450)
+        wyvern4 = WyvernEnemy.setup_wyvern(0.9, 0, -3, 200, 550)
+        self.cave_1_enemy_list.append(wyvern1)
+        self.cave_1_enemy_list.append(wyvern2)
+        self.cave_1_enemy_list.append(wyvern3)
+        self.cave_1_enemy_list.append(wyvern4)
 
+    def setup_cave_2_dragon_boss(self):
+        dragonboss = DragonBoss.setup_dragon_boss(.5, -0.5, 0, (64 * 7) + 32, 520)
+        return dragonboss
 
 
 '''
