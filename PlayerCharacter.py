@@ -20,8 +20,8 @@ class PlayerCharacter(arcade.AnimatedWalkingSprite):
         self.temp_invincibility = False
         self.invincibility_timer = 0
         self.health = 3
-        self.money = 0
-        self.arrows = 20
+        self.money = 1000
+        self.arrows = 10
         self.boots = False
         self.magic_book = False
 

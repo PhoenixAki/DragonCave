@@ -13,7 +13,7 @@ FACE_DOWN = 3
 
 
 class Map(arcade.Window):
-    def __init__(self):
+    def __init__ (self):
         super().__init__(960, 960, "Dragoncave")
         # initialize tile maps and paths
         self.goblin_path = pathlib.Path.cwd() / 'Assets' / 'Enemies' / 'goblinsword.png'
@@ -51,7 +51,10 @@ class Map(arcade.Window):
         # timer to control framerate
         self.frame_time = 0
 
-    def setup(self):
+        # message to print on the screen
+        self.display_message = False
+
+    def setup (self):
         # setup character + lists
         hero_sprite_sheet_path = pathlib.Path.cwd() / 'Assets' / 'Characters' / 'hero_character_1.png'
         self.character = PlayerCharacter.setup_character(hero_sprite_sheet_path, 1, 500, 800)
@@ -76,13 +79,13 @@ class Map(arcade.Window):
         self.right_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'right_arrow.png'
         self.up_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'up_arrow.png'
         self.down_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'down_arrow.png'
-        self.arrow_sprites = [self.left_arrow_sprite_path, self.right_arrow_sprite_path,
-                              self.up_arrow_sprite_path, self.down_arrow_sprite_path]
+        self.arrow_sprites = [ self.left_arrow_sprite_path, self.right_arrow_sprite_path,
+                               self.up_arrow_sprite_path, self.down_arrow_sprite_path ]
 
         # setup physics engine
         self.simple_Physics = arcade.PhysicsEngineSimple(self.character, self.wall_list)
 
-    def on_update(self, delta_time: float):
+    def on_update (self, delta_time: float):
 
         # FOREST MAP UPDATES ------------
         if self.current_map == self.forest_map:
@@ -93,16 +96,8 @@ class Map(arcade.Window):
                 self.character.center_y = 40
                 self.character.center_x = (64 * 7) + 32
                 self.process_current_tmx_and_layers()
-
-                # -- Sethia do stuff here
-                # -- if character is on cave entrance:
-                # -- set self.map_location to opening_map.txp and change location of character to the entrance of the
-                # dungeon
-                # self.character.center_x = 480 * (64[ 0 ] * 0.50) + 64 / 2
-                # self.character.center_y = (960 - 480 - 1) * (
-                # 64[ 1 ] * 0.50) + 64 / 2
-                # self.character_list.update()
-                # refer to the block comment at the end of the code :)
+            if self.character.center_y < 64 * 6:
+                self.display_message = False
 
         # CAVE 1 MAP UPDATES --------------
         elif self.current_map == self.cave_1_map:
@@ -110,13 +105,13 @@ class Map(arcade.Window):
             for proj in self.character_projectile_list:
                 collisions = arcade.check_for_collision_with_list(proj, self.cave_1_enemy_list)
                 if len(collisions) > 0:
-                    collisions[0].kill()
+                    collisions[ 0 ].kill()
                     proj.kill()
 
             # check for collision between character and enemies
             enemy_collisions = arcade.check_for_collision_with_list(self.character, self.cave_1_enemy_list)
             if len(enemy_collisions) > 0:
-                self.character.update_health(self.character.health-1)
+                self.character.update_health(self.character.health - 1)
 
             # open door when all enemies are dead
             if len(self.cave_1_enemy_list) <= 0:
@@ -173,12 +168,12 @@ class Map(arcade.Window):
             self.char_list.update()
             self.char_list.update_animation()
 
-            if self.current_map == self.cave_1_map:
-                self.cave_1_enemy_list.update()
-                self.cave_1_enemy_list.update_animation()
-            elif self.current_map == self.cave_2_map:
-                self.dragonboss.update()
-                self.dragonboss.update_animation()
+        if self.current_map == self.cave_1_map:
+            self.cave_1_enemy_list.update()
+            self.cave_1_enemy_list.update_animation()
+        elif self.current_map == self.cave_2_map:
+            self.dragonboss.update()
+            self.dragonboss.update_animation()
 
         self.simple_Physics.update()
 
@@ -188,8 +183,8 @@ class Map(arcade.Window):
 
         # check for projectile collisions with "wall_layer" and off screen
         # @@@@@@@@@@@@@@@@MAKE THIS GENERIC TO HOLD ANY PROJECTILE LIST@@@@@@@@@@@@
-        [proj.kill() for proj in self.character_projectile_list
-            if arcade.check_for_collision_with_list(proj, self.wall_list)]
+        [ proj.kill() for proj in self.character_projectile_list
+          if arcade.check_for_collision_with_list(proj, self.wall_list) ]
 
         # check if player is dead
         if self.character.health <= 0:
@@ -197,7 +192,7 @@ class Map(arcade.Window):
             print("You lose.")
             exit()
 
-    def on_draw(self):
+    def on_draw (self):
         arcade.start_render()
         self.floor_list.draw()
         self.wall_list.draw()
@@ -207,7 +202,14 @@ class Map(arcade.Window):
             self.character_projectile_list.draw()
 
         if self.current_map == self.forest_map:
-            pass
+
+            if self.display_message:
+                output = "Go Defeat the Dragon!"
+                arcade.draw_text(output, 600, 500, arcade.color.RED, 14)
+            else:
+                output = "100         500        250"
+                arcade.draw_text(output, 650, 370, arcade.color.WHITE, 12)
+
         elif self.current_map == self.cave_1_map:
             self.cave_1_enemy_list.draw()
         elif self.current_map == self.cave_1_wall_open_map:
@@ -215,7 +217,7 @@ class Map(arcade.Window):
         elif self.current_map == self.cave_2_map:
             self.dragonboss.draw()
 
-    def on_key_press(self, key: int, modifiers: int):
+    def on_key_press (self, key: int, modifiers: int):
         if not self.character.attacking:
             if key == arcade.key.UP or key == arcade.key.W:
                 self.character.change_y = self.character_speed
@@ -234,30 +236,53 @@ class Map(arcade.Window):
                 self.character.change_y = 0
                 self.character.attacking = True
                 self.character_arrow_shoot()
+            if self.current_map == self.forest_map:
+                if key == arcade.key.ENTER:
+                    if self.character.state == FACE_UP:
+                        if 64 <= self.character.center_x <= 64 * 2 and 64 * 6 <= self.character.center_y <= 64 * 7:
+                            self.display_message = True
+                        elif 650 <= self.character.center_x <= 650 * 2 and 64 * 4 <= self.character.center_y <= 64 * 5:
+                            if self.character.money >= 100:
+                                self.character.money -= 100
+                                self.character.arrows += 10
+                                print(self.character.money)
+                                print(self.character.arrows)
+                        elif 750 <= self.character.center_x <= 750 * 2 and 64 * 4 <= self.character.center_y <= 64 * 5:
+                            if self.character.money >= 500:
+                                self.character.magic_book = True
+                                self.character.money -= 500
+                                print(self.character.money)
+                                print(self.character.magic_book)
+                        elif 850 <= self.character.center_x <= 850 * 2 and 64 * 4 <= self.character.center_y <= 64 * 5:
+                            if self.character.money >= 250:
+                                self.character.boots = True
+                                self.character.money -= 250
+                                print(self.character.money)
+                                print(self.character.boots)
             elif key == arcade.key.ESCAPE:
                 self.close()
 
-    def on_key_release(self, key: int, modifiers: int):
+    def on_key_release (self, key: int, modifiers: int):
         if key == arcade.key.UP or key == arcade.key.W or key == arcade.key.DOWN or key == arcade.key.S:
             self.character.change_y = 0
         elif key == arcade.key.LEFT or key == arcade.key.A or key == arcade.key.RIGHT or key == arcade.key.D:
             self.character.change_x = 0
 
-# ------------------ Utility functions --------------------------------
-    def process_current_tmx_and_layers(self):
+    # ------------------ Utility functions --------------------------------
+    def process_current_tmx_and_layers (self):
         self.current_map_tmx = arcade.tilemap.read_tmx(str(self.current_map))
         self.floor_list = arcade.tilemap.process_layer(self.current_map_tmx, "floor_layer", 1)
         self.wall_list = arcade.tilemap.process_layer(self.current_map_tmx, "walls_layer", 1)
         self.simple_Physics = arcade.PhysicsEngineSimple(self.character, self.wall_list)
 
-    def character_arrow_shoot(self):
-        new_arrow_sprite = Projectile(self.arrow_sprites[self.character.state], speed=10,
+    def character_arrow_shoot (self):
+        new_arrow_sprite = Projectile(self.arrow_sprites[ self.character.state ], speed=10,
                                       direction=self.character.state, game_window=self)
         new_arrow_sprite.center_y = self.character.center_y
         new_arrow_sprite.center_x = self.character.center_x
         self.character_projectile_list.append(new_arrow_sprite)
 
-    def setup_cave_1(self):
+    def setup_cave_1 (self):
         goblin1 = GoblinEnemy.setup_goblin(self.goblin_path, 1, 2, 0, 700, 200)
         goblin2 = GoblinEnemy.setup_goblin(self.goblin_path, 1, -2, 0, 600, 300)
         goblin3 = GoblinEnemy.setup_goblin(self.goblin_path, 1, 0, 2, 500, 400)
@@ -275,82 +300,5 @@ class Map(arcade.Window):
         self.cave_1_enemy_list.append(wyvern3)
         self.cave_1_enemy_list.append(wyvern4)
 
-    def setup_cave_2_dragon_boss(self):
+    def setup_cave_2_dragon_boss (self):
         return DragonBoss.setup_dragon_boss(.5, -0.5, 0, (64 * 7) + 32, 520)
-
-
-'''
-    def get_money (self):
-
-        new_balance = PlayerCharacter.money + 50
-        return new_balance
-
-    def get_current_money(self):
-
-        return PlayerCharacter.money
-
-    def get_arrows(self):
-
-        return PlayerCharacter.arrows
-
-    # should be a dialogue that asks if player wants to buy an item or not. If yest, then perform actions.
-
-    def buy_item (self):
-        if(player chooses arrow):
-            new_arrow_count = PlayerCharacter.arrows + 5
-            get_current_money() - 25
-        elif(current_money < 0): # if money goes below 0
-            print("You do not have enough money. Go work.")
-        else:
-            print("You currently have" + str(PlayerCharacter.arrows() + "arrows"))
-
-    def magic_boot_gain(self):
-        if(PlayerCharacter.magic_book == 3):
-            "You have reached the max number of books you can carry!"
-
-        elif(If get_current_money() < 0):
-            print("You do not have enough money. Go work.")
-
-        # purchasing the book
-        else:
-            PlayerCharacter.magic_book + 1
-            get_current_money() - 10
-
-        return PlayerCharacter.magic_book
-
-class DialogueBox:
-    def __init__(self, x, y, width, height, color=None, theme=None):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.color = color
-        self.active = False
-        self.button_list = []
-        self.text_list = []
-        self.theme = theme
-        if self.theme:
-            self.texture = self.theme.dialogue_box_texture
-
-    def on_draw(self):
-        if self.active:
-            if self.theme:
-                arcade.draw_texture_rectangle(self.x, self.y, self.width, self.height, self.texture)
-            else:
-                arcade.draw_rectangle_filled(self.x, self.y, self.width, self.height, self.color)
-            for button in self.button_list:
-                button.draw()
-            for text in self.text_list:
-                text.draw()
-
-    def on_mouse_press(self, x, y, _button, _modifiers):
-        for button in self.button_list:
-            button.check_mouse_press(x, y)
-
-    def on_mouse_release(self, x, y, _button, _modifiers):
-        for button in self.button_list:
-            button.check_mouse_release(x, y)
-
-
------
-'''
