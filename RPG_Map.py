@@ -26,7 +26,6 @@ class Map(arcade.Window):
         self.floor_list = None
         self.wall_list = None
         self.entering_cave_1 = False
-        # self.setup_cave_1_goblins = False
 
         # initialize sprites
         self.up_arrow_sprite_path = None
@@ -53,22 +52,21 @@ class Map(arcade.Window):
         self.frame_time = 0
 
     def setup(self):
+        # setup character + lists
+        hero_sprite_sheet_path = pathlib.Path.cwd() / 'Assets' / 'Characters' / 'hero_character_1.png'
+        self.character = PlayerCharacter.setup_character(hero_sprite_sheet_path, 1, 500, 800)
+        self.char_list = arcade.SpriteList()
+        self.char_list.append(self.character)
+        self.character_projectile_list = arcade.SpriteList()
+
         # setup tile maps
         self.current_map = self.forest_map
         # read map and process current layers
         self.process_current_tmx_and_layers()
 
-        # setup character + lists
-        hero_sprite_sheet_path = pathlib.Path.cwd() / 'Assets' / 'Characters' / 'hero_character_1.png'
-        self.character = PlayerCharacter.setup_character(hero_sprite_sheet_path, 1, 200, 150)
-        self.char_list = arcade.SpriteList()
-        self.char_list.append(self.character)
-        self.character_projectile_list = arcade.SpriteList()
-
         # setup goblins in cave 1
         self.cave_1_enemy_list = arcade.SpriteList()
-        self.setup_cave_1_goblins()
-        self.setup_cave_1_wyverns()
+        self.setup_cave_1()
 
         # setup drgaon boss for cave 2
         self.dragonboss = self.setup_cave_2_dragon_boss()
@@ -88,85 +86,70 @@ class Map(arcade.Window):
 
         # FOREST MAP UPDATES ------------
         if self.current_map == self.forest_map:
-            if (64 * 7) + 5 <= self.character.center_x <= (64 * 7) + 59 \
-                    and self.character.center_y >= (64 * 13) + 20:
-                # self.entering_cave_1 = True
+            # check if entering cave_1
+            if (64 * 7) + 5 <= self.character.center_x <= (64 * 7) + 59 and self.character.center_y >= (64 * 13) + 20:
+                # set character to opening of cave_1 and update physics engine
                 self.current_map = self.cave_1_map
-                # set character to opening of cave_1
                 self.character.center_y = 40
                 self.character.center_x = (64 * 7) + 32
-                # setup new map and layers
                 self.process_current_tmx_and_layers()
-                # setup physics engine
-                self.simple_Physics = arcade.PhysicsEngineSimple(self.character, self.wall_list)
-                # setup goblins for entering cave one
-                # if self.entering_cave_1:
-                #     # print("entering cave one#####################")
-                #     self.setup_cave_1()
-                #     self.entering_cave_1 = False
 
-            # -- Sethia do stuff here
-            # -- if character is on cave entrance:
-            # -- set self.map_location to opening_map.txp and change location of character to the entrance of the
-            # dungeon
-            # self.character.center_x = 480 * (64[ 0 ] * 0.50) + 64 / 2
-            # self.character.center_y = (960 - 480 - 1) * (
-            # 64[ 1 ] * 0.50) + 64 / 2
-            # self.character_list.update()
-            # refer to the block comment at the end of the code :)
+                # -- Sethia do stuff here
+                # -- if character is on cave entrance:
+                # -- set self.map_location to opening_map.txp and change location of character to the entrance of the
+                # dungeon
+                # self.character.center_x = 480 * (64[ 0 ] * 0.50) + 64 / 2
+                # self.character.center_y = (960 - 480 - 1) * (
+                # 64[ 1 ] * 0.50) + 64 / 2
+                # self.character_list.update()
+                # refer to the block comment at the end of the code :)
 
         # CAVE 1 MAP UPDATES --------------
-        if self.current_map == self.cave_1_map:
-            # check character arrow projectile collision with goblins
+        elif self.current_map == self.cave_1_map:
+            # check for collision between projectiles and enemies
             for proj in self.character_projectile_list:
                 collisions = arcade.check_for_collision_with_list(proj, self.cave_1_enemy_list)
                 if len(collisions) > 0:
                     collisions[0].kill()
                     proj.kill()
-                    # self.goblin_kill_count += 1
-            # check for collision with goblin and character
-            goblin_collisions = arcade.check_for_collision_with_list(self.character, self.cave_1_enemy_list)
-            if len(goblin_collisions) > 0:
-                self.character.kill()
-                print("You lose.")
-            # check if all goblins are killed and open door
+
+            # check for collision between character and enemies
+            enemy_collisions = arcade.check_for_collision_with_list(self.character, self.cave_1_enemy_list)
+            if len(enemy_collisions) > 0:
+                self.character.update_health(self.character.health-1)
+
+            # open door when all enemies are dead
             if len(self.cave_1_enemy_list) <= 0:
-                print("Room done (add door open later)")
-                # set current map to cave_1_wall_open
+                # update map to cave_1_wall_open and update physics engine
                 self.current_map = self.cave_1_wall_open_map
                 self.process_current_tmx_and_layers()
-                self.simple_Physics = arcade.PhysicsEngineSimple(self.character, self.wall_list)
 
+            # check if player is returning to forest
             if self.character.center_y <= -10 and (64 * 6 <= self.character.center_x <= 64 * 9):
                 self.current_map = self.forest_map
-                # set character to opening of cave_1
+                # set character to opening of forest
                 self.character.center_y = (64 * 12) + 42
                 self.character.center_x = (64 * 7) + 32
-                # setup new map and layers
+                # setup new map and update physics engine
                 self.process_current_tmx_and_layers()
-                # setup physics engine
-                self.simple_Physics = arcade.PhysicsEngineSimple(self.character, self.wall_list)
 
-        # CAVE 2 OPEN DOOR MAP UPDATES -----------
+        # CAVE 1 OPEN DOOR MAP UPDATES -----------
         elif self.current_map == self.cave_1_wall_open_map:
+            # check if player is entering cave 2
             if self.character.center_x >= 64 * 15 and (64 * 6 <= self.character.center_y <= 64 * 9):
                 self.current_map = self.cave_2_map
-                # set character to opening of cave_1
+                # set character to opening of cave 2
                 self.character.center_y = (64 * 7) + 32
                 self.character.center_x = 32
-                # setup new map and layers
+                # setup new map and update physics engine
                 self.process_current_tmx_and_layers()
-                # setup physics engine
-                self.simple_Physics = arcade.PhysicsEngineSimple(self.character, self.wall_list)
             elif self.character.center_y <= -10 and (64 * 6 <= self.character.center_x <= 64 * 9):
                 self.current_map = self.forest_map
-                # set character to opening of cave_1
+                # set character to opening of forest
                 self.character.center_y = (64 * 12) + 42
                 self.character.center_x = (64 * 7) + 32
-                # setup new map and layers
+                # setup new map and update physics engine
                 self.process_current_tmx_and_layers()
-                # setup physics engine
-                self.simple_Physics = arcade.PhysicsEngineSimple(self.character, self.wall_list)
 
         # CAVE 2 MAP UPDATES ------------
         elif self.current_map == self.cave_2_map:
@@ -177,11 +160,9 @@ class Map(arcade.Window):
                 self.character.center_x = (64 * 14) + 32
                 # setup new map and layers
                 self.process_current_tmx_and_layers()
-                # setup physics engine
-                self.simple_Physics = arcade.PhysicsEngineSimple(self.character, self.wall_list)
-                # going into cave_1 - setup goblins if goblin list empty
-            # update wyvern list
-            # update other stuff for room
+                # going into cave_1 - setup enemies if enemy list empty
+                # update wyvern list
+                # update other stuff for room
 
         # update animations using frame rate
         self.frame_time += delta_time
@@ -191,14 +172,13 @@ class Map(arcade.Window):
             # update character
             self.char_list.update()
             self.char_list.update_animation()
-            # if current map is cave 1 - update goblin list
 
-        if self.current_map == self.cave_1_map:
-            self.cave_1_enemy_list.update()
-            self.cave_1_enemy_list.update_animation()
-        elif self.current_map == self.cave_2_map:
-            self.dragonboss.update()
-            self.dragonboss.update_animation()
+            if self.current_map == self.cave_1_map:
+                self.cave_1_enemy_list.update()
+                self.cave_1_enemy_list.update_animation()
+            elif self.current_map == self.cave_2_map:
+                self.dragonboss.update()
+                self.dragonboss.update_animation()
 
         self.simple_Physics.update()
 
@@ -211,22 +191,27 @@ class Map(arcade.Window):
         [proj.kill() for proj in self.character_projectile_list
             if arcade.check_for_collision_with_list(proj, self.wall_list)]
 
+        # check if player is dead
+        if self.character.health <= 0:
+            self.character.kill()
+            print("You lose.")
+            exit()
+
     def on_draw(self):
         arcade.start_render()
         self.floor_list.draw()
         self.wall_list.draw()
         self.char_list.draw()
-        self.character_projectile_list.draw()
+
+        if len(self.character_projectile_list) > 0:
+            self.character_projectile_list.draw()
 
         if self.current_map == self.forest_map:
             pass
-
         elif self.current_map == self.cave_1_map:
             self.cave_1_enemy_list.draw()
-
         elif self.current_map == self.cave_1_wall_open_map:
             pass
-
         elif self.current_map == self.cave_2_map:
             self.dragonboss.draw()
 
@@ -263,6 +248,7 @@ class Map(arcade.Window):
         self.current_map_tmx = arcade.tilemap.read_tmx(str(self.current_map))
         self.floor_list = arcade.tilemap.process_layer(self.current_map_tmx, "floor_layer", 1)
         self.wall_list = arcade.tilemap.process_layer(self.current_map_tmx, "walls_layer", 1)
+        self.simple_Physics = arcade.PhysicsEngineSimple(self.character, self.wall_list)
 
     def character_arrow_shoot(self):
         new_arrow_sprite = Projectile(self.arrow_sprites[self.character.state], speed=10,
@@ -271,29 +257,26 @@ class Map(arcade.Window):
         new_arrow_sprite.center_x = self.character.center_x
         self.character_projectile_list.append(new_arrow_sprite)
 
-    def setup_cave_1_goblins(self):
+    def setup_cave_1(self):
         goblin1 = GoblinEnemy.setup_goblin(self.goblin_path, 1, 2, 0, 700, 200)
         goblin2 = GoblinEnemy.setup_goblin(self.goblin_path, 1, -2, 0, 600, 300)
         goblin3 = GoblinEnemy.setup_goblin(self.goblin_path, 1, 0, 2, 500, 400)
         goblin4 = GoblinEnemy.setup_goblin(self.goblin_path, 1, 0, -2, 400, 500)
+        wyvern1 = WyvernEnemy.setup_wyvern(0.9, 4, 0, 750, 250)
+        wyvern2 = WyvernEnemy.setup_wyvern(0.9, -4, 0, 650, 600)
+        wyvern3 = WyvernEnemy.setup_wyvern(0.9, 0, 4, 750, 450)
+        wyvern4 = WyvernEnemy.setup_wyvern(0.9, 0, -4, 200, 550)
         self.cave_1_enemy_list.append(goblin1)
         self.cave_1_enemy_list.append(goblin2)
         self.cave_1_enemy_list.append(goblin3)
         self.cave_1_enemy_list.append(goblin4)
-        
-    def setup_cave_1_wyverns(self):
-        wyvern1 = WyvernEnemy.setup_wyvern(0.9, 3, 0, 750, 250)
-        wyvern2 = WyvernEnemy.setup_wyvern(0.9, -3, 0, 650, 600)
-        wyvern3 = WyvernEnemy.setup_wyvern(0.9, 0, 3, 750, 450)
-        wyvern4 = WyvernEnemy.setup_wyvern(0.9, 0, -3, 200, 550)
         self.cave_1_enemy_list.append(wyvern1)
         self.cave_1_enemy_list.append(wyvern2)
         self.cave_1_enemy_list.append(wyvern3)
         self.cave_1_enemy_list.append(wyvern4)
 
     def setup_cave_2_dragon_boss(self):
-        dragonboss = DragonBoss.setup_dragon_boss(.5, -0.5, 0, (64 * 7) + 32, 520)
-        return dragonboss
+        return DragonBoss.setup_dragon_boss(.5, -0.5, 0, (64 * 7) + 32, 520)
 
 
 '''

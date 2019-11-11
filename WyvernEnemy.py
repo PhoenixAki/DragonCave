@@ -85,7 +85,7 @@ class WyvernEnemy(arcade.AnimatedWalkingSprite):
                 texture_list = self.walk_down_textures
 
             if len(texture_list) == 0:
-                raise RuntimeError("error loading walk animations in goblin update_animation")
+                raise RuntimeError("error loading walk animations in wyvern update_animation")
 
             # check if done playing the texture
             self.cur_texture_index += 1
