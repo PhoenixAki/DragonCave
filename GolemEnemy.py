@@ -21,6 +21,7 @@ class GolemEnemy(arcade.AnimatedWalkingSprite):
         super().__init__(scale=scale, center_x=center_x, center_y=center_y)
 
         self.move_state = ROAM
+        self.health = 3
 
         self.walk_left_textures = []
         self.walk_right_textures = []

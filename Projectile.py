@@ -13,7 +13,7 @@ class Projectile(arcade.Sprite):
         self.direction = direction
         self.game = game_window
 
-    def move(self):
+    def update(self):
         if self.direction == FACE_UP:
             self.center_y += self.speed
         elif self.direction == FACE_DOWN:

@@ -23,8 +23,14 @@ class WyvernEnemy(arcade.AnimatedWalkingSprite):
         self.walk_down_textures = []
         self.walk_up_textures = []
 
+        self.walking_x = 0
+        self.walking_y = 0
+
+        self.health = 2
         self.state = None
         self.cur_texture_index = 0
+        self.drop = None
+        self.attacking = False
 
     def update(self):
         self.center_x += self.change_x
@@ -32,8 +38,10 @@ class WyvernEnemy(arcade.AnimatedWalkingSprite):
 
         if self.left < 65 or self.right > 895:
             self.change_x *= -1
+            self.walking_x = self.change_x
         elif self.top > 895 or self.bottom < 65:
             self.change_y *= -1
+            self.walking_y = self.change_y
 
     def update_animation(self, delta_time: float = 1/30):
         """
@@ -95,7 +103,7 @@ class WyvernEnemy(arcade.AnimatedWalkingSprite):
             self.texture = texture_list[self.cur_texture_index]
 
 
-def setup_wyvern(scl, change_x, change_y, cent_x, cent_y):
+def setup_wyvern(scl, change_x, change_y, cent_x, cent_y, drop):
     wyvern = WyvernEnemy(scale=scl, center_x=cent_x, center_y=cent_y)
     
     # get sprite sheet paths
@@ -135,5 +143,8 @@ def setup_wyvern(scl, change_x, change_y, cent_x, cent_y):
             wyvern.walk_down_textures.append(frame)
 
     wyvern.change_x = change_x
+    wyvern.walking_x = change_x
     wyvern.change_y = change_y
+    wyvern.walking_y = change_y
+    wyvern.drop = drop
     return wyvern

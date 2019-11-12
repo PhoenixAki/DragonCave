@@ -20,8 +20,8 @@ class PlayerCharacter(arcade.AnimatedWalkingSprite):
         self.temp_invincibility = False
         self.invincibility_timer = 0
         self.health = 3
-        self.money = 1000
-        self.arrows = 10
+        self.money = 50
+        self.arrows = 0
         self.boots = False
         self.magic_book = False
         self.chest_key = False
@@ -44,10 +44,10 @@ class PlayerCharacter(arcade.AnimatedWalkingSprite):
 
     def update_health(self, health):
         """
-        **health:** health value to update character's health to \n
+        **health:** value to update character's health to \n
         *example: pass in character.health-1 to subtract 1, or character.health+1 to add 1*
 
-        **temp_invincibility:** is enabled upon taking damage, and prevents more damage from being taken for 3 seconds.
+        **temp_invincibility:** enabled upon taking damage, and prevents more damage from being taken for 3 seconds.
         """
         old_health = self.health
 
@@ -63,7 +63,7 @@ class PlayerCharacter(arcade.AnimatedWalkingSprite):
         if self.temp_invincibility is True:
             self.invincibility_timer += 1
 
-        if self.invincibility_timer >= 90:  # 3 seconds at 30fps
+        if self.invincibility_timer >= 60:  # 2 seconds at 30fps
             self.invincibility_timer = 0
             self.temp_invincibility = False
             print("Disabling invincibility.")
