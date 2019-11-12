@@ -1,3 +1,5 @@
+import pathlib
+
 import arcade
 import math
 from typing import List
@@ -42,6 +44,9 @@ class PlayerCharacter(arcade.AnimatedWalkingSprite):
         self.spear_down_textures = []
         self.spear_up_textures = []
 
+        self.hurt_sound_path = pathlib.Path.cwd() / 'Assets' / 'Sounds' / 'player_hurt.wav'
+        self.hurt_sound = arcade.Sound(str(self.hurt_sound_path))
+
     def update_health(self, health):
         """
         **health:** value to update character's health to \n
@@ -54,6 +59,7 @@ class PlayerCharacter(arcade.AnimatedWalkingSprite):
         if self.temp_invincibility is False:
             self.health = health
             print("Health reduced from ", old_health, " to ", self.health)
+            self.hurt_sound.play()
 
         if health < old_health and self.temp_invincibility is False:
             self.temp_invincibility = True
