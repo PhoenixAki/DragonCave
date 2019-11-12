@@ -32,11 +32,19 @@ class GolemEnemy(arcade.AnimatedWalkingSprite):
         
         self.attacking_textures = []
 
-        self.state = None
+        self.state = FACE_LEFT
         self.cur_texture_index = 0
 
     def update(self):
         if self.move_state == ROAM:
+            if self.state == FACE_LEFT:
+                self.change_x = -1
+            elif self.state == FACE_RIGHT:
+                self.change_x = 1
+            elif self.state == FACE_UP:
+                self.change_y = 1
+            elif self.state == FACE_DOWN:
+                self.change_y = -1
             if self.center_x < 64 or self.center_x > 64 * 14:
                 self.change_x *= -1
             elif self.center_y < 64 or self.center_y > 64 * 14:
@@ -45,15 +53,15 @@ class GolemEnemy(arcade.AnimatedWalkingSprite):
             if self.center_x != self.character_x_loc:
                 self.change_y = 0
                 if self.center_x < self.character_x_loc:
-                    self.change_x = 1
+                    self.change_x = 2
                 elif self.center_x > self.character_x_loc:
-                    self.change_x = -1
+                    self.change_x = -2
             else:
                 self.change_x = 0
                 if self.center_y < self.character_y_loc:
-                    self.change_y = 1
+                    self.change_y = 2
                 elif self.center_y >= self.character_y_loc:
-                    self.change_y = -1
+                    self.change_y = -2
 
         self.center_x += self.change_x
         self.center_y += self.change_y
@@ -128,7 +136,7 @@ def setup_golem(scl, change_x, change_y, cent_x, cent_y):
                                     width=GOLEM_FRAME_WIDTH)
         frame.width = frame.width * scl
         frame.height = frame.height * scl
-        print(f'scaled: {image_num}')
+        # print(f'scaled: {image_num}')
         golem.walk_up_textures.append(frame)
 
         frame = arcade.load_texture(str(walking_sprite_sheet), image_num * GOLEM_FRAME_WIDTH,
@@ -136,7 +144,7 @@ def setup_golem(scl, change_x, change_y, cent_x, cent_y):
                                     width=GOLEM_FRAME_WIDTH)
         frame.width = frame.width * scl
         frame.height = frame.height * scl
-        print(f'scaled: {image_num}')
+        # print(f'scaled: {image_num}')
         golem.walk_left_textures.append(frame)
 
         frame = arcade.load_texture(str(walking_sprite_sheet), image_num * GOLEM_FRAME_WIDTH,
@@ -144,7 +152,7 @@ def setup_golem(scl, change_x, change_y, cent_x, cent_y):
                                     width=GOLEM_FRAME_WIDTH)
         frame.width = frame.width * scl
         frame.height = frame.height * scl
-        print(f'scaled: {image_num}')
+        # print(f'scaled: {image_num}')
         golem.walk_down_textures.append(frame)
 
         frame = arcade.load_texture(str(walking_sprite_sheet), image_num * GOLEM_FRAME_WIDTH,
@@ -152,9 +160,8 @@ def setup_golem(scl, change_x, change_y, cent_x, cent_y):
                                     width=GOLEM_FRAME_WIDTH)
         frame.width = frame.width * scl
         frame.height = frame.height * scl
-        print(f'scaled: {image_num}')
+        # print(f'scaled: {image_num}')
         golem.walk_right_textures.append(frame)
-
 
     golem.change_x = change_x
     golem.change_y = change_y

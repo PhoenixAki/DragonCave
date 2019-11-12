@@ -4,8 +4,6 @@ import PlayerCharacter
 import GoblinEnemy
 import WyvernEnemy
 import GolemEnemy
-import EnemyPhysics
-import DragonBoss
 from Projectile import Projectile
 
 FACE_LEFT = 0
@@ -26,6 +24,8 @@ class Map(arcade.Window):
         self.cave_1_map = pathlib.Path.cwd() / 'Assets' / 'Cave_1.tmx'
         self.cave_1_wall_open_map = pathlib.Path.cwd() / 'Assets' / 'Cave_1_wall_open.tmx'
         self.cave_2_map = pathlib.Path.cwd() / 'Assets' / 'Cave_2.tmx'
+        self.close_chest_path = pathlib.Path.cwd() / 'Assets' / 'Item_Drops' / 'Chest' / 'Treasure_Chest_closed.png'
+        self.open_chest_path = pathlib.Path.cwd() / 'Assets' / 'Item_Drops' / 'Chest' / 'Treasure_Chest_open.png'
         self.current_map = None
         self.current_map_tmx = None
         self.floor_list = None
@@ -38,6 +38,11 @@ class Map(arcade.Window):
         self.left_arrow_sprite_path = None
         self.right_arrow_sprite_path = None
         self.arrow_sprites = None
+        self.animated_key = None
+        self.chest = None
+        self.chest_opened = False
+        self.opened_chest_texture = None
+        self.animated_crystal = None
 
         # initialize character + lists
         self.character = None
@@ -46,6 +51,7 @@ class Map(arcade.Window):
         self.character_speed = 2
         self.cave_1_enemy_list = None
         self.goblin_kill_count = 0
+        self.golem_list = None
 
         # dragon boss
         # self.dragonboss = None
@@ -60,16 +66,14 @@ class Map(arcade.Window):
         # timer to control framerate
         self.frame_time = 0
 
+        # message to print on the screen
+        self.display_message = False
+
     def setup(self):
-        # setup character + lists
-        hero_sprite_sheet_path = pathlib.Path.cwd() / 'Assets' / 'Characters' / 'hero_character_1.png'
-        self.character = PlayerCharacter.setup_character(hero_sprite_sheet_path, 1, 500, 800)
-        self.char_list = arcade.SpriteList()
-        self.char_list.append(self.character)
-        self.character_projectile_list = arcade.SpriteList()
+        self.setup_character()
 
         # setup tile maps
-        self.current_map = self.cave_2_map
+        self.current_map = self.forest_map
         # read map and process current layers
         self.process_current_tmx_and_layers()
 
@@ -77,112 +81,51 @@ class Map(arcade.Window):
         self.cave_1_enemy_list = arcade.SpriteList()
         self.setup_cave_1()
 
-        # setup drgaon boss for cave 2
-        # self.dragonboss = self.setup_cave_2_dragon_boss()
-
         # setup golem boss
-        self.golem_boss = GolemEnemy.setup_golem(1.7, 0, 1, (64 * 7) + 32, 485)
+        self.golem_list = arcade.SpriteList()
+        self.golem_boss = GolemEnemy.setup_golem(1.7, 0, 0, (64 * 7) + 32, 485)
+        self.golem_list.append(self.golem_boss)
 
-        # setup projectiles
-        self.left_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'left_arrow.png'
-        self.right_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'right_arrow.png'
-        self.up_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'up_arrow.png'
-        self.down_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'down_arrow.png'
-        self.arrow_sprites = [self.left_arrow_sprite_path, self.right_arrow_sprite_path,
-                              self.up_arrow_sprite_path, self.down_arrow_sprite_path]
+        self.chest = arcade.Sprite(str(self.close_chest_path), center_x=64 * 13 + 32, center_y=64 * 13 + 32)
+        self.opened_chest_texture = arcade.load_texture(str(self.open_chest_path))
+        self.chest.append_texture(self.opened_chest_texture)
+
+        self.setup_boss_key()
+
+        self.setup_animated_crystal()
+
+        self.setup_projectiles()
 
         # setup physics engines
         self.simple_Physics = arcade.PhysicsEngineSimple(self.character, self.wall_list)
-        self.enemy_Physics = EnemyPhysics.EnemyEngineSimple(self.golem_boss, self.wall_list)
+        # self.enemy_Physics = EnemyPhysics.EnemyEngineSimple(self.golem_boss, self.wall_list)
 
     def on_update(self, delta_time: float):
 
         # FOREST MAP UPDATES ------------
         if self.current_map == self.forest_map:
-            # check if entering cave_1
-            if (64 * 7) + 5 <= self.character.center_x <= (64 * 7) + 59 and self.character.center_y >= (64 * 13) + 20:
-                # set character to opening of cave_1 and update physics engine
-                self.current_map = self.cave_1_map
-                self.character.center_y = 40
-                self.character.center_x = (64 * 7) + 32
-                self.process_current_tmx_and_layers()
-
-                # -- Sethia do stuff here
-                # -- if character is on cave entrance:
-                # -- set self.map_location to opening_map.txp and change location of character to the entrance of the
-                # dungeon
-                # self.character.center_x = 480 * (64[ 0 ] * 0.50) + 64 / 2
-                # self.character.center_y = (960 - 480 - 1) * (
-                # 64[ 1 ] * 0.50) + 64 / 2
-                # self.character_list.update()
-                # refer to the block comment at the end of the code :)
+            self.do_forest_map_updates()
 
         # CAVE 1 MAP UPDATES --------------
         elif self.current_map == self.cave_1_map:
-            # check for collision between projectiles and enemies
-            for proj in self.character_projectile_list:
-                collisions = arcade.check_for_collision_with_list(proj, self.cave_1_enemy_list)
-                if len(collisions) > 0:
-                    collisions[0].kill()
-                    proj.kill()
-
-            # check for collision between character and enemies
-            enemy_collisions = arcade.check_for_collision_with_list(self.character, self.cave_1_enemy_list)
-            if len(enemy_collisions) > 0:
-                self.character.update_health(self.character.health-1)
-
-            # open door when all enemies are dead
-            if len(self.cave_1_enemy_list) <= 0:
-                # update map to cave_1_wall_open and update physics engine
-                self.current_map = self.cave_1_wall_open_map
-                self.process_current_tmx_and_layers()
-
-            # check if player is returning to forest
-            if self.character.center_y <= -10 and (64 * 6 <= self.character.center_x <= 64 * 9):
-                self.current_map = self.forest_map
-                # set character to opening of forest
-                self.character.center_y = (64 * 12) + 42
-                self.character.center_x = (64 * 7) + 32
-                # setup new map and update physics engine
-                self.process_current_tmx_and_layers()
+            self.do_cave1_map_updates()
 
         # CAVE 1 OPEN DOOR MAP UPDATES -----------
         elif self.current_map == self.cave_1_wall_open_map:
-            # check if player is entering cave 2
-            if self.character.center_x >= 64 * 15 and (64 * 6 <= self.character.center_y <= 64 * 9):
-                self.current_map = self.cave_2_map
-                # set character to opening of cave 2
-                self.character.center_y = (64 * 7) + 32
-                self.character.center_x = 32
-                # setup new map and update physics engine
-                self.process_current_tmx_and_layers()
-            elif self.character.center_y <= -10 and (64 * 6 <= self.character.center_x <= 64 * 9):
-                self.current_map = self.forest_map
-                # set character to opening of forest
-                self.character.center_y = (64 * 12) + 42
-                self.character.center_x = (64 * 7) + 32
-                # setup new map and update physics engine
-                self.process_current_tmx_and_layers()
+            self.do_cave1_open_door_updates()
 
         # CAVE 2 MAP UPDATES ------------
         elif self.current_map == self.cave_2_map:
-            if self.character.center_x <= -10 and (64 * 6 <= self.character.center_y <= 64 * 9):
-                self.current_map = self.cave_1_wall_open_map
-                # set character to opening of cave_1
-                self.character.center_y = (64 * 7) + 32
-                self.character.center_x = (64 * 14) + 32
-                # setup new map and layers
-                self.process_current_tmx_and_layers()
-                # going into cave_1 - setup enemies if enemy list empty
-                # update wyvern list
-                # update other stuff for room
-            if arcade.get_distance_between_sprites(self.character, self.golem_boss) <= 200.0:
-                self.golem_boss.character_x_loc = self.character.center_x
-                self.golem_boss.character_y_loc = self.character.center_y
-                self.golem_boss.move_state = ATTACK
-            else:
-                self.golem_boss.move_state = ROAM
+            self.do_cave2_map_updates()
 
+        # ****** BELOW: UPDATES THAT HAPPEN ON EVERY MAP *************
+        # these have to happen every time to avoid "Exception: Error: Attempt to draw a sprite without a texture set."
+        if self.current_map == self.cave_1_map:
+            self.cave_1_enemy_list.update()
+            self.cave_1_enemy_list.update_animation()
+        elif self.current_map == self.cave_2_map:
+            self.golem_list.update()
+            self.golem_list.update_animation()
         # update animations using frame rate
         self.frame_time += delta_time
         if self.frame_time > 1 / 30:  # 30fps for now?
@@ -191,26 +134,17 @@ class Map(arcade.Window):
             # update character
             self.char_list.update()
             self.char_list.update_animation()
+            # update key animation if boss dead
+            if len(self.golem_list) <= 0 and not self.character.chest_key:
+                self.animated_key.update_animation()
+            if self.chest_opened:
+                self.animated_crystal.update_animation()
 
-        if self.current_map == self.cave_1_map:
-            self.cave_1_enemy_list.update()
-            self.cave_1_enemy_list.update_animation()
-        elif self.current_map == self.cave_2_map:
-            # self.dragonboss.update()
-            # self.dragonboss.update_animation()
-            self.golem_boss.update()
-            self.golem_boss.update_animation()
+        # *********************************************************
 
         self.simple_Physics.update()
 
-        # move player projectiles
-        for character_projectile in self.character_projectile_list:
-            character_projectile.move()
-
-        # check for projectile collisions with "wall_layer" and off screen
-        # @@@@@@@@@@@@@@@@MAKE THIS GENERIC TO HOLD ANY PROJECTILE LIST@@@@@@@@@@@@
-        [proj.kill() for proj in self.character_projectile_list
-            if arcade.check_for_collision_with_list(proj, self.wall_list)]
+        self.projectile_updates()
 
         # check if player is dead
         if self.character.health <= 0:
@@ -224,18 +158,32 @@ class Map(arcade.Window):
         self.wall_list.draw()
         self.char_list.draw()
 
+        # draw projectiles
         if len(self.character_projectile_list) > 0:
             self.character_projectile_list.draw()
-
+        # draw forest stuff
         if self.current_map == self.forest_map:
-            pass
+            if self.display_message:
+                output = "DEFEAT THE EVIL GOLEM.\nGET HIS KEY.\nRETRIEVE THE SCARED CRYSTAL!"
+                arcade.draw_text(output, 10, 510, arcade.color.WHITE, 20)
+            output = "  100              500            250"
+            arcade.draw_text(output, 650, 370, arcade.color.WHITE, 12)
+        # draw cave 1 stuff
         elif self.current_map == self.cave_1_map:
             self.cave_1_enemy_list.draw()
+        # draw cave 1 (open door) stuff
         elif self.current_map == self.cave_1_wall_open_map:
             pass
+        # draw cave 2 stuff
         elif self.current_map == self.cave_2_map:
+            self.chest.draw()
             # self.dragonboss.draw()
-            self.golem_boss.draw()
+            if len(self.golem_list) > 0:
+                self.golem_list.draw()
+            if len(self.golem_list) <= 0 and not self.character.chest_key:
+                self.animated_key.draw()
+            if self.chest_opened and not self.character.crystal:
+                self.animated_crystal.draw()
 
     def on_key_press(self, key: int, modifiers: int):
         if not self.character.attacking:
@@ -256,7 +204,18 @@ class Map(arcade.Window):
                 self.character.change_y = 0
                 self.character.attacking = True
                 self.character_arrow_shoot()
-            elif key == arcade.key.ESCAPE:
+            if self.current_map == self.forest_map:
+                if key == arcade.key.ENTER:
+                    if self.character.state == FACE_UP:
+                        self.handle_npc_and_store_interactions()
+            elif self.current_map == self.cave_2_map:
+                if key == arcade.key.ENTER:
+                    if self.character.state == FACE_UP:
+                        if 64 * 14 >= self.character.center_x >= 64 * 13 >= self.character.center_y >= 64 * 12 and \
+                                self.character.chest_key:
+                            self.chest.set_texture(1)
+                            self.chest_opened = True
+            if key == arcade.key.ESCAPE:
                 self.close()
 
     def on_key_release(self, key: int, modifiers: int):
@@ -265,7 +224,37 @@ class Map(arcade.Window):
         elif key == arcade.key.LEFT or key == arcade.key.A or key == arcade.key.RIGHT or key == arcade.key.D:
             self.character.change_x = 0
 
-# ------------------ Utility functions --------------------------------
+# ######################## Utility functions #############################
+    def setup_character(self):
+        # setup character + lists
+        hero_sprite_sheet_path = pathlib.Path.cwd() / 'Assets' / 'Characters' / 'hero_character_1.png'
+        self.character = PlayerCharacter.setup_character(hero_sprite_sheet_path, 1, 64 * 11 + 32, 64 * 3 + 32)
+        self.char_list = arcade.SpriteList()
+        self.char_list.append(self.character)
+        self.character_projectile_list = arcade.SpriteList()
+
+    def setup_boss_key(self):
+        # boss key
+        path = pathlib.Path.cwd() / 'Assets' / 'Item_Drops' / 'Keys'
+        self.animated_key = arcade.AnimatedTimeSprite(1, center_x=64 * 11 + 32, center_y=64 * 6 + 32)
+        all_files = path.glob('*.png')  # return a generator with all the qualified paths to all png files in dir
+        textures = []
+        for file_path in all_files:
+            frame = arcade.load_texture(str(file_path))  # we want the whole image
+            frame.height = frame.height * 0.5
+            frame.width = frame.width * 0.5
+            textures.append(frame)
+        self.animated_key.textures = textures
+
+    def setup_projectiles(self):
+        # setup projectiles
+        self.left_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'left_arrow.png'
+        self.right_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'right_arrow.png'
+        self.up_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'up_arrow.png'
+        self.down_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'down_arrow.png'
+        self.arrow_sprites = [self.left_arrow_sprite_path, self.right_arrow_sprite_path,
+                              self.up_arrow_sprite_path, self.down_arrow_sprite_path]
+
     def process_current_tmx_and_layers(self):
         self.current_map_tmx = arcade.tilemap.read_tmx(str(self.current_map))
         self.floor_list = arcade.tilemap.process_layer(self.current_map_tmx, "floor_layer", 1)
@@ -297,82 +286,158 @@ class Map(arcade.Window):
         self.cave_1_enemy_list.append(wyvern3)
         self.cave_1_enemy_list.append(wyvern4)
 
-    # def setup_cave_2_dragon_boss(self):
-    #     return DragonBoss.setup_dragon_boss(.5, -0.5, 0, (64 * 7) + 32, 520)
+    def setup_animated_crystal(self):
+        path = pathlib.Path.cwd() / 'Assets' / 'Item_Drops' / 'Crystal' / 'crystal.png'
+        self.animated_crystal = arcade.AnimatedTimeSprite(1, center_x=64 * 12 + 32, center_y=64 * 13 + 32)
+        crystal_frames = []
+        for col in range(8):
+            frame = arcade.load_texture(str(path), x=col * 32, y=0,
+                                        width=32, height=32)
+            crystal_frames.append(frame)
+        self.animated_crystal.textures = crystal_frames
 
+    # ----UPDATE FUNCTIONS----
+    def do_forest_map_updates(self):
+        # check if entering cave_1
+        if (64 * 7) + 5 <= self.character.center_x <= (64 * 7) + 59 and self.character.center_y >= (64 * 13) + 20:
+            # set character to opening of cave_1 and update physics engine
+            self.current_map = self.cave_1_map
+            self.character.center_y = 40
+            self.character.center_x = (64 * 7) + 32
+            self.process_current_tmx_and_layers()
+        # ************** TODO: RESPAWN ENEMIES FOR CAVE ROOM 1 if cave room 1 enemy list is empty**************
+            # going into cave_1 - setup enemies if enemy list empty
+            # update wyvern list
+            # update other stuff for room
+        if self.character.center_y < 64 * 6:
+            self.display_message = False
 
-'''
-    def get_money (self):
+    def do_cave1_map_updates(self):
+        self.cave_1_enemy_list.update()
+        self.cave_1_enemy_list.update_animation()
+        # check for collision between projectiles and enemies
+        for proj in self.character_projectile_list:
+            collisions = arcade.check_for_collision_with_list(proj, self.cave_1_enemy_list)
+            if len(collisions) > 0:
+                collisions[0].kill()
+                proj.kill()
 
-        new_balance = PlayerCharacter.money + 50
-        return new_balance
+        # check for collision between character and enemies
+        enemy_collisions = arcade.check_for_collision_with_list(self.character, self.cave_1_enemy_list)
+        if len(enemy_collisions) > 0:
+            self.character.update_health(self.character.health - 1)
 
-    def get_current_money(self):
+        # open door when all enemies are dead
+        if len(self.cave_1_enemy_list) <= 0:
+            # update map to cave_1_wall_open and update physics engine
+            self.current_map = self.cave_1_wall_open_map
+            self.process_current_tmx_and_layers()
 
-        return PlayerCharacter.money
+        # check if player is returning to forest
+        if self.character.center_y <= -10 and (64 * 6 <= self.character.center_x <= 64 * 9):
+            self.current_map = self.forest_map
+            # set character to opening of forest
+            self.character.center_y = (64 * 12) + 42
+            self.character.center_x = (64 * 7) + 32
+            # setup new map and update physics engine
+            self.process_current_tmx_and_layers()
 
-    def get_arrows(self):
+    def do_cave1_open_door_updates(self):
+        # check if player is entering cave 2
+        if self.character.center_x >= 64 * 15 and (64 * 6 <= self.character.center_y <= 64 * 9):
+            self.current_map = self.cave_2_map
+            # set character to opening of cave 2
+            self.character.center_y = (64 * 7) + 32
+            self.character.center_x = 32
+            # setup new map and update physics engine
+            self.process_current_tmx_and_layers()
+        elif self.character.center_y <= -10 and (64 * 6 <= self.character.center_x <= 64 * 9):
+            self.current_map = self.forest_map
+            # set character to opening of forest
+            self.character.center_y = (64 * 12) + 42
+            self.character.center_x = (64 * 7) + 32
+            # setup new map and update physics engine
+            self.process_current_tmx_and_layers()
 
-        return PlayerCharacter.arrows
-
-    # should be a dialogue that asks if player wants to buy an item or not. If yest, then perform actions.
-
-    def buy_item (self):
-        if(player chooses arrow):
-            new_arrow_count = PlayerCharacter.arrows + 5
-            get_current_money() - 25
-        elif(current_money < 0): # if money goes below 0
-            print("You do not have enough money. Go work.")
+    def do_cave2_map_updates(self):
+        # ROOM EXITING
+        if self.character.center_x <= -10 and (64 * 6 <= self.character.center_y <= 64 * 9):
+            self.current_map = self.cave_1_wall_open_map
+            # set character to opening of cave_1
+            self.character.center_y = (64 * 7) + 32
+            self.character.center_x = (64 * 14) + 32
+            # setup new map and layers
+            self.process_current_tmx_and_layers()
+        # BOSS INTERACTION ***
+        if arcade.get_distance_between_sprites(self.character, self.golem_boss) <= 200.0:
+            self.golem_boss.character_x_loc = self.character.center_x
+            self.golem_boss.character_y_loc = self.character.center_y
+            self.golem_boss.move_state = ATTACK
         else:
-            print("You currently have" + str(PlayerCharacter.arrows() + "arrows"))
+            self.golem_boss.move_state = ROAM
 
-    def magic_boot_gain(self):
-        if(PlayerCharacter.magic_book == 3):
-            "You have reached the max number of books you can carry!"
+        if len(self.golem_list) > 0:
+            boss_collisions = arcade.check_for_collision_with_list(self.character, self.golem_list)
+            if len(boss_collisions) > 0:
+                self.character.update_health(self.character.health - 1)
 
-        elif(If get_current_money() < 0):
-            print("You do not have enough money. Go work.")
+        # If player has magic arrows, can kill the golem
+        if self.character.magic_book:
+            [gol.kill() for gol in self.golem_list if
+             arcade.check_for_collision_with_list(gol, self.character_projectile_list)]
 
-        # purchasing the book
-        else:
-            PlayerCharacter.magic_book + 1
-            get_current_money() - 10
+        [proj.kill() for proj in self.character_projectile_list
+         if arcade.check_for_collision_with_list(proj, self.golem_list)]
 
-        return PlayerCharacter.magic_book
+        # pick up key
+        if len(self.golem_list) <= 0 and 64 * 11 <= self.character.center_x <= 64 * 12 and \
+                64 * 6 <= self.character.center_y <= 64 * 7:
+            self.character.chest_key = True
 
-class DialogueBox:
-    def __init__(self, x, y, width, height, color=None, theme=None):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.color = color
-        self.active = False
-        self.button_list = []
-        self.text_list = []
-        self.theme = theme
-        if self.theme:
-            self.texture = self.theme.dialogue_box_texture
+        # ***opening chest happens in key press detection***
+        # pick up crystal here
+        if 64 * 12 <= self.character.center_x <= 64 * 13 <= self.character.center_y <= 64 * 14 and self.chest_opened:
+            self.character.crystal = True
 
-    def on_draw(self):
-        if self.active:
-            if self.theme:
-                arcade.draw_texture_rectangle(self.x, self.y, self.width, self.height, self.texture)
-            else:
-                arcade.draw_rectangle_filled(self.x, self.y, self.width, self.height, self.color)
-            for button in self.button_list:
-                button.draw()
-            for text in self.text_list:
-                text.draw()
+    def projectile_updates(self):
+        # move player projectiles
+        for character_projectile in self.character_projectile_list:
+            character_projectile.move()
+        # check for projectile collisions with "wall_layer" and off screen
+        [proj.kill() for proj in self.character_projectile_list
+         if arcade.check_for_collision_with_list(proj, self.wall_list)]
 
-    def on_mouse_press(self, x, y, _button, _modifiers):
-        for button in self.button_list:
-            button.check_mouse_press(x, y)
+    # -----------------
+    def upgrade_to_magic_fire_arrows(self):
+        self.left_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'left_fire_arrow.png'
+        self.right_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'right_fire_arrow.png'
+        self.up_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'up_fire_arrow.png'
+        self.down_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'down_fire_arrow.png'
+        self.arrow_sprites = [self.left_arrow_sprite_path, self.right_arrow_sprite_path,
+                              self.up_arrow_sprite_path, self.down_arrow_sprite_path]
 
-    def on_mouse_release(self, x, y, _button, _modifiers):
-        for button in self.button_list:
-            button.check_mouse_release(x, y)
-
-
------
-'''
+    def handle_npc_and_store_interactions(self):
+        if 64 <= self.character.center_x <= 64 * 2 and 64 * 6 <= self.character.center_y <= 64 * 7:
+            self.display_message = True
+        elif 64 * 10 < self.character.center_x < 64 * 11 and 64 * 4 < self.character.center_y < 64 * 5:
+            if self.character.money >= 100:
+                self.character.money -= 100
+                self.character.arrows += 10
+                print(self.character.money)
+                print(self.character.arrows)
+        elif 64 * 11 <= self.character.center_x <= 64 * 12 and 64 * 4 <= self.character.center_y <= 64 * 5:
+            if self.character.money >= 500:
+                self.character.magic_book = True
+                self.character.money -= 500
+                print(self.character.money)
+                print(self.character.magic_book)
+                # player now has magic fire arrows
+                self.upgrade_to_magic_fire_arrows()
+        elif 64 * 12 <= self.character.center_x <= 64 * 13 and 64 * 4 <= self.character.center_y <= 64 * 5:
+            if self.character.money >= 250:
+                self.character.boots = True
+                self.character.money -= 250
+                print(self.character.money)
+                print(self.character.boots)
+                # player's speed has increased
+                self.character_speed = 4

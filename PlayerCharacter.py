@@ -24,6 +24,8 @@ class PlayerCharacter(arcade.AnimatedWalkingSprite):
         self.arrows = 10
         self.boots = False
         self.magic_book = False
+        self.chest_key = False
+        self.crystal = False
 
         self.cur_texture_index = 0
         self.state = FACE_UP
