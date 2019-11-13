@@ -5,13 +5,13 @@ Sethia Lochard
 2D Game Design Project
 “Dragoncave”
 				
-Object of the game:
-Dragoncave is a single-player 2D RPG. The objective of the game is to defeat the Golem Boss and obtain the Sacred Crystal. This is done by entering the cave dungeon and defeating goblins and Wyverns. These enemies drop coins and rubies that you can sell to the shop owner to obtain key items that you need to defeat the Golem. After defeating the Golem, return the crystal.
+Objective of the game:
+Dragoncave is a single-player 2D RPG. The objective of the game is to defeat the Golem Boss and obtain the Sacred Crystal. This is done by first entering the cave dungeon and defeating goblins and Wyverns, and proceeding to the Golem's room. The goblins and wyverns drop coins and rubies that you can sell to the shop owner to obtain key items that you need to defeat the Golem. After defeating the Golem, return the crystal to the quest giver.
 
 Instructions:
 The player starts in the Forest area. There are two NPCs here. The NPC on the left between two trees will tell you your quest, and the NPC on the right in front of the house is a shop owner. To talk to the “Quest” NPC, face him and press <Enter>.
 
-After hearing your quest, enter the cave to the north. The cave entrance leads to the first cave room. Goblin and Wyvern enemies are in this room. Defeat these enemies to obtain coins and rubies, which can be used to buy items from the shop. When the enemies in this room are defeated, an opening in the east wall will open. The opening leads to the Golem boss room. The Golem will quickly chase you and destroy you if you do not have the Boots (sold at the shop). Also, you need to buy the Magic Book to upgrade your arrows to fire magic in order to damage the Golem. If you run out of arrows, you can buy more at the shop.
+After hearing your quest, enter the cave to the north. Make sure to buy some arrows first! The cave entrance leads to the first cave room. Goblin and Wyvern enemies are in this room. Defeat these enemies to obtain coins and rubies which can be used to buy items from the shop. When the enemies in this room are defeated, the east wall will open. The opening leads to the Golem boss room. The Golem will quickly chase you and destroy you if you do not have the Boots (sold at the shop). Also, you need to buy the Magic Book to upgrade your arrows to fire magic in order to damage the Golem. The golem is immune to regular arrows, so make sure to have the magic book first. If you run out of arrows, you can buy more at the shop.
 
 After defeating the Golem, a key will appear. Take the key and use it to open the chest in the north-east corner of the Golem room. Face the chest from the bottom and press <Enter>; if you have the key, the chest will open, and the Sacred Crystal will appear from the chest. Take the crystal back to the Quest NPC to finish the quest.
 
@@ -29,16 +29,16 @@ Health:
 The player has three hit points (HP). Contact with enemies reduce the player’s HP by one. There is a brief invincibility period after getting hit. 
 
 Money:
-The player starts with 50 money and 0 arrows. Use the 50 money to buy some arrows before going into the cave! Coins are worth 25 and rubes are worth 50.
+The player starts with 50 money and 0 arrows. Use the 50 money to buy some arrows before going into the cave! Coins are worth 25 and rubies are worth 50.
 
 Movement:
-Holding down the up arrow moves your player up. Down moves down. Left and right arrow moves the player left and right respectively. The player is restricted to the map areas and cannot move off the edge unless moving to another map. Once the “Boots of Speed” are purchased the players movement speed is increased.
+Holding the up arrow moves your player up. Down moves down. Left and right arrow moves the player left and right respectively. The player is restricted to the map areas and cannot move off the edge unless moving to another map. Once the Boots are purchased the players movement speed is increased.
 
 Combat:
-Pressing the spacebar will cause the player to shoot an arrow. When close to the player, enemies will stop moving and attack the player. NOTE: attack animations are not working due to unresolved errors. The player can hold up to 45 arrows at a time.
+Pressing the spacebar will cause the player to shoot an arrow. When close to the player, enemies will stop moving and attack the player. NOTE: attack animations are not working due to unresolved errors, but they still damage the player. The player can hold up to 45 arrows at a time.
 
 Inventory:
-The player can hold up to 750 worth of coins and rubies. He can also hold the magic book (upgrades arrows to magic fire arrows), boots (increases speed), the boss key, and the crystal.
+The player can hold up to 600 worth of coins and rubies. He can also hold the magic book (upgrades arrows to magic fire arrows), boots (increases speed), the boss key, and the crystal.
 
 
 ========================================================
