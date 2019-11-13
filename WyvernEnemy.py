@@ -10,8 +10,8 @@ FACE_RIGHT = 1
 FACE_UP = 2
 FACE_DOWN = 3
 
-WYVERN_FRAME_WIDTH = 205
-WYVERN_FRAME_HEIGHT = 161
+WYVERN_FRAME_WIDTH = 164
+WYVERN_FRAME_HEIGHT = 128
 
 
 class WyvernEnemy(arcade.AnimatedWalkingSprite):
@@ -27,6 +27,7 @@ class WyvernEnemy(arcade.AnimatedWalkingSprite):
         self.walking_y = 0
 
         self.health = 2
+        self.range = 78
         self.state = None
         self.cur_texture_index = 0
         self.drop = None
@@ -117,29 +118,21 @@ def setup_wyvern(scl, change_x, change_y, cent_x, cent_y, drop):
             frame = arcade.load_texture(str(left_textures_path), image_col * WYVERN_FRAME_WIDTH,
                                         WYVERN_FRAME_HEIGHT * image_row, height=WYVERN_FRAME_HEIGHT,
                                         width=WYVERN_FRAME_WIDTH)
-            frame.height = frame.height * scl
-            frame.width = frame.width * scl
             wyvern.walk_left_textures.append(frame)
     
             frame = arcade.load_texture(str(right_textures_path), image_col * WYVERN_FRAME_WIDTH,
                                         WYVERN_FRAME_HEIGHT * image_row, height=WYVERN_FRAME_HEIGHT,
                                         width=WYVERN_FRAME_WIDTH)
-            frame.height = frame.height * scl
-            frame.width = frame.width * scl
             wyvern.walk_right_textures.append(frame)
     
             frame = arcade.load_texture(str(up_textures_path), image_col * WYVERN_FRAME_WIDTH,
                                         WYVERN_FRAME_HEIGHT * image_row, height=WYVERN_FRAME_HEIGHT,
                                         width=WYVERN_FRAME_WIDTH)
-            frame.height = frame.height * scl
-            frame.width = frame.width * scl
             wyvern.walk_up_textures.append(frame)
     
             frame = arcade.load_texture(str(down_textures_path), image_col * WYVERN_FRAME_WIDTH,
                                         WYVERN_FRAME_HEIGHT * image_row, height=WYVERN_FRAME_HEIGHT,
                                         width=WYVERN_FRAME_WIDTH)
-            frame.height = frame.height * scl
-            frame.width = frame.width * scl
             wyvern.walk_down_textures.append(frame)
 
     wyvern.change_x = change_x

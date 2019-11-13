@@ -30,6 +30,7 @@ class GoblinEnemy(arcade.AnimatedWalkingSprite):
         self.walking_y = 0
 
         self.health = 1
+        self.range = 64
         self.state = None
         self.cur_texture_index = 0
         self.texture_list = None

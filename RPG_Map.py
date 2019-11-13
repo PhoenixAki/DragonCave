@@ -55,7 +55,6 @@ class Map(arcade.Window):
         self.sell_buy_item_sound_path = pathlib.Path.cwd() / 'Assets' / 'Sounds' / 'sell_buy_item.wav'
         self.sell_buy_item_sound = arcade.Sound(str(self.sell_buy_item_sound_path))
 
-
         self.current_map = None
         self.current_map_tmx = None
         self.floor_list = None
@@ -106,7 +105,7 @@ class Map(arcade.Window):
         self.process_map()
 
         # setup golem boss
-        self.golem_boss = GolemEnemy.setup_golem(1.7, 0, 0, (64 * 7) + 32, 485)
+        self.golem_boss = GolemEnemy.setup_golem(1.7, 0, 0, (64 * 5) + 32, 485)
         self.golem_list = arcade.SpriteList()
         self.golem_list.append(self.golem_boss)
 
@@ -183,14 +182,6 @@ class Map(arcade.Window):
         arcade.start_render()
         self.floor_list.draw()
         self.wall_list.draw()
-        self.char_list.draw()
-
-        if self.HUD is True:
-            arcade.draw_rectangle_filled(150, 875, 185, 135, arcade.color.DAVY_GREY)
-            arcade.draw_text("HEALTH: " + str(self.character.health), 80, 920, arcade.color.BLACK, 15)
-            arcade.draw_text("MONEY: " + str(self.character.money), 80, 890, arcade.color.BLACK, 15)
-            arcade.draw_text("ARROWS: " + str(self.character.arrows), 80, 860, arcade.color.BLACK, 15)
-            arcade.draw_text("ITEMS: " + self.item_list, 80, 830, arcade.color.BLACK, 12)
 
         # projectiles
         if len(self.character_projectile_list) > 0:
@@ -205,7 +196,7 @@ class Map(arcade.Window):
                 else:
                     output = "YOU RETRIEVED THE SACRED CRYSTAL!\nWE ARE SAFE AGAIN, THANK YOU!"
                     arcade.draw_text(output, 10, 510, arcade.color.WHITE, 20)
-                    if self.end_game_flag == False:
+                    if self.end_game_flag is False:
                         self.end_game_sound.play()
                         self.end_game_flag = True
 
@@ -227,6 +218,14 @@ class Map(arcade.Window):
                 self.animated_key.draw()
             if self.chest_opened and not self.character.crystal:
                 self.animated_crystal.draw()
+
+        self.char_list.draw()
+        if self.HUD is True:
+            arcade.draw_rectangle_filled(150, 875, 185, 135, arcade.color.DAVY_GREY)
+            arcade.draw_text("HEALTH: " + str(self.character.health), 80, 920, arcade.color.BLACK, 15)
+            arcade.draw_text("MONEY: " + str(self.character.money), 80, 890, arcade.color.BLACK, 15)
+            arcade.draw_text("ARROWS: " + str(self.character.arrows), 80, 860, arcade.color.BLACK, 15)
+            arcade.draw_text("ITEMS: " + self.item_list, 80, 830, arcade.color.BLACK, 12)
 
     def on_key_press(self, key: int, modifiers: int):
         # character movement
@@ -294,29 +293,6 @@ class Map(arcade.Window):
             frame.width = frame.width * 0.5
             textures.append(frame)
         self.animated_key.textures = textures
-
-    def create_coin_drop(self, x, y):
-        path = pathlib.Path.cwd() / 'Assets' / 'Item_Drops' / 'Coin'
-        coin = arcade.AnimatedTimeSprite(1, center_x=x, center_y=y)
-        all_files = path.glob('*.png')  # return a generator with all the qualified paths to all png files in dir
-        textures = []
-        for file_path in all_files:
-            frame = arcade.load_texture(str(file_path))
-            frame.height = frame.height  # * 0.5
-            frame.width = frame.width  # * 0.5
-            textures.append(frame)
-        coin.textures = textures
-        return coin
-
-    def create_ruby_drop(self, x, y):
-        path = pathlib.Path.cwd() / 'Assets' / 'Item_Drops' / 'Ruby' / 'ruby2.png'
-        ruby = arcade.AnimatedTimeSprite(1, center_x=x, center_y=y)
-        ruby_frames = []
-        for col in range(7):
-            frame = arcade.load_texture(str(path), x=col * 24, y=0, width=24, height=24)
-            ruby_frames.append(frame)
-        ruby.textures = ruby_frames
-        return ruby
 
     def setup_projectiles(self):
         # setup projectiles
@@ -397,10 +373,10 @@ class Map(arcade.Window):
                     collisions[0].kill()
 
                     if collisions[0].drop == "coin":
-                        coin = self.create_coin_drop(collisions[0].center_x, collisions[0].center_y)
+                        coin = create_coin_drop(collisions[0].center_x, collisions[0].center_y)
                         self.enemy_drop_list.append(coin)
                     elif collisions[0].drop == "ruby":
-                        ruby = self.create_ruby_drop(collisions[0].center_x, collisions[0].center_y)
+                        ruby = create_ruby_drop(collisions[0].center_x, collisions[0].center_y)
                         self.enemy_drop_list.append(ruby)
 
         # check for collision between character and enemies
@@ -423,19 +399,10 @@ class Map(arcade.Window):
             self.character.center_x = (64 * 7) + 32
 
         # pick up coins and rubies
-        collisions = arcade.check_for_collision_with_list(self.character, self.enemy_drop_list)
-        if len(collisions) > 0:
-            if len(collisions[0].textures) == 7:  # rubies
-                self.ruby_sound.play()
-                self.character.money += 50
-                collisions[0].kill()
-            elif len(collisions[0].textures) == 9:  # coins
-                self.coin_sound.play()
-                self.character.money += 25
-                collisions[0].kill()
+        self.pickup_drops()
 
         for enemy in self.cave_1_enemies:
-            if arcade.get_distance_between_sprites(self.character, enemy) < 75:
+            if arcade.get_distance_between_sprites(self.character, enemy) < enemy.range:
                 enemy.change_x = 0
                 enemy.change_y = 0
             else:
@@ -458,16 +425,7 @@ class Map(arcade.Window):
             self.character.center_x = (64 * 7) + 32
 
         # pick up coins and rubies
-        collisions = arcade.check_for_collision_with_list(self.character, self.enemy_drop_list)
-        if len(collisions) > 0:
-            if len(collisions[0].textures) == 7:  # rubies
-                self.ruby_sound.play()
-                self.character.money += 50
-                collisions[0].kill()
-            elif len(collisions[0].textures) == 9:  # coins
-                self.coin_sound.play()
-                self.character.money += 25
-                collisions[0].kill()
+        self.pickup_drops()
 
         # ***opening chest happens in key press detection***
         # pick up crystal here
@@ -483,11 +441,12 @@ class Map(arcade.Window):
             self.character.center_y = (64 * 7) + 32
             self.character.center_x = (64 * 14) + 32
         # BOSS INTERACTION ***
-        if arcade.get_distance_between_sprites(self.character, self.golem_boss) <= 200.0:
+        if arcade.get_distance_between_sprites(self.character, self.golem_boss) <= 300.0 and len(self.golem_list) > 0:
             self.golem_boss.character_x_loc = self.character.center_x
             self.golem_boss.character_y_loc = self.character.center_y
-            self.golem_boss.move_state = ATTACK
-            # self.golem_attack_sound.play()
+            if self.golem_boss.move_state is not ATTACK:
+                self.golem_boss.move_state = ATTACK
+                self.golem_attack_sound.play()
         else:
             self.golem_boss.move_state = ROAM
 
@@ -502,22 +461,23 @@ class Map(arcade.Window):
                 proj.kill()
                 self.golem_boss.health -= 1
                 self.boss_damage_sound.play()
+
                 if self.golem_boss.health == 0:
                     self.golem_boss.kill()
 
         # pick up key
         if len(self.golem_list) <= 0 and 64 * 11 <= self.character.center_x <= 64 * 12 and \
                 64 * 6 <= self.character.center_y <= 64 * 7:
-            self.character.chest_key = True
             if not self.character.chest_key:
                 self.collect_key_sound.play()
+            self.character.chest_key = True
 
         # ***opening chest happens in key press detection***
         # pick up crystal here
         if 64 * 12 <= self.character.center_x <= 64 * 13 <= self.character.center_y <= 64 * 14 and self.chest_opened:
-            self.character.crystal = True
             if not self.character.crystal:
                 self.collect_crystal_sound.play()
+            self.character.crystal = True
 
     # -----------------
     def upgrade_to_magic_fire_arrows(self):
@@ -528,14 +488,32 @@ class Map(arcade.Window):
         self.arrow_sprites = [self.left_arrow_sprite_path, self.right_arrow_sprite_path,
                               self.up_arrow_sprite_path, self.down_arrow_sprite_path]
 
+    def pickup_drops(self):
+        collisions = arcade.check_for_collision_with_list(self.character, self.enemy_drop_list)
+        if len(collisions) > 0 and self.character.money < 600:
+            if len(collisions[0].textures) == 7:  # rubies
+                self.ruby_sound.play()
+                self.character.money += 50
+                collisions[0].kill()
+            elif len(collisions[0].textures) == 9:  # coins
+                self.coin_sound.play()
+                self.character.money += 25
+                collisions[0].kill()
+
+        if self.character.money > 600:
+            self.character.money = 600
+
     def npc_interactions(self):
         if 64 <= self.character.center_x <= 64 * 2 and 64 * 6 <= self.character.center_y <= 64 * 7:
             self.display_message = True
         elif 64 * 10 < self.character.center_x < 64 * 11 and 64 * 4 < self.character.center_y < 64 * 5:
-            if self.character.money >= 50:
+            if self.character.money >= 50 and self.character.arrows < 45:
                 self.character.money -= 50
                 self.character.arrows += 15
                 self.sell_buy_item_sound.play()
+
+                if self.character.arrows > 45:
+                    self.character.arrows = 45
         elif 64 * 11 <= self.character.center_x <= 64 * 12 and 64 * 4 <= self.character.center_y <= 64 * 5:
             if self.character.money >= 350 and not self.character.magic_book:
                 self.character.magic_book = True
@@ -557,3 +535,28 @@ class Map(arcade.Window):
                     self.item_list = self.item_list + "Boots"
                 # player's speed has increased
                 self.character_speed = 5
+
+
+def create_coin_drop(x, y):
+    path = pathlib.Path.cwd() / 'Assets' / 'Item_Drops' / 'Coin'
+    coin = arcade.AnimatedTimeSprite(1, center_x=x, center_y=y)
+    all_files = path.glob('*.png')  # return a generator with all the qualified paths to all png files in dir
+    textures = []
+    for file_path in all_files:
+        frame = arcade.load_texture(str(file_path))
+        frame.height = frame.height  # * 0.5
+        frame.width = frame.width  # * 0.5
+        textures.append(frame)
+    coin.textures = textures
+    return coin
+
+
+def create_ruby_drop(x, y):
+    path = pathlib.Path.cwd() / 'Assets' / 'Item_Drops' / 'Ruby' / 'ruby2.png'
+    ruby = arcade.AnimatedTimeSprite(1, center_x=x, center_y=y)
+    ruby_frames = []
+    for col in range(7):
+        frame = arcade.load_texture(str(path), x=col * 24, y=0, width=24, height=24)
+        ruby_frames.append(frame)
+    ruby.textures = ruby_frames
+    return ruby
