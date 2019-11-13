@@ -55,6 +55,10 @@ class Map(arcade.Window):
         self.sell_buy_item_sound_path = pathlib.Path.cwd() / 'Assets' / 'Sounds' / 'sell_buy_item.wav'
         self.sell_buy_item_sound = arcade.Sound(str(self.sell_buy_item_sound_path))
 
+        self.arrows_price_str = "50"
+        self.book_price_str = "350"
+        self.boots_price_str = "150"
+
         self.current_map = None
         self.current_map_tmx = None
         self.floor_list = None
@@ -191,7 +195,7 @@ class Map(arcade.Window):
         if self.current_map == self.forest_map:
             if self.display_message:
                 if not self.character.crystal:
-                    output = "DEFEAT THE EVIL GOLEM.\nGET HIS KEY.\nRETRIEVE THE SCARED CRYSTAL!"
+                    output = "DEFEAT THE EVIL GOLEM.\nGET HIS KEY.\nRETRIEVE THE SACRED CRYSTAL!"
                     arcade.draw_text(output, 10, 510, arcade.color.WHITE, 20)
                 else:
                     output = "YOU RETRIEVED THE SACRED CRYSTAL!\nWE ARE SAFE AGAIN, THANK YOU!"
@@ -200,8 +204,9 @@ class Map(arcade.Window):
                         self.end_game_sound.play()
                         self.end_game_flag = True
 
-            output = "  50               350            150"
-            arcade.draw_text(output, 650, 370, arcade.color.WHITE, 12)
+            arcade.draw_text(self.arrows_price_str, 660, 370, arcade.color.WHITE, 12)
+            arcade.draw_text(self.book_price_str, 725, 370, arcade.color.WHITE, 12)
+            arcade.draw_text(self.boots_price_str, 790, 370, arcade.color.WHITE, 12)
         # cave 1
         elif self.current_map == self.cave_1_map:
             self.cave_1_enemies.draw()
@@ -310,7 +315,7 @@ class Map(arcade.Window):
         self.simple_Physics = arcade.PhysicsEngineSimple(self.character, self.wall_list)
 
     def shoot_arrow(self):
-        new_arrow_sprite = Projectile(self.arrow_sprites[self.character.state], speed=10,
+        new_arrow_sprite = Projectile(self.arrow_sprites[self.character.state], speed=12,
                                       direction=self.character.state, game_window=self)
         new_arrow_sprite.center_y = self.character.center_y
         new_arrow_sprite.center_x = self.character.center_x
