@@ -16,14 +16,16 @@ ATTACK = 2
 
 
 class Map(arcade.Window):
-    def __init__(self):
+    def __init__(self, cave_1_graph, cave_2_graph):
         super().__init__(960, 960, "Dragoncave")
         # initialize tile maps and paths
         self.goblin_path = pathlib.Path.cwd() / 'Assets' / 'Enemies' / 'goblinsword.png'
         self.forest_map = pathlib.Path.cwd() / 'Assets' / 'Forest.tmx'
         self.cave_1_map = pathlib.Path.cwd() / 'Assets' / 'Cave_1.tmx'
+        self.cave_1_graph = cave_1_graph
         self.cave_1_open = pathlib.Path.cwd() / 'Assets' / 'Cave_1_open.tmx'
         self.cave_2_map = pathlib.Path.cwd() / 'Assets' / 'Cave_2.tmx'
+        self.cave_2_graph = cave_2_graph
         self.close_chest_path = pathlib.Path.cwd() / 'Assets' / 'Item_Drops' / 'Chest' / 'Treasure_Chest_closed.png'
         self.open_chest_path = pathlib.Path.cwd() / 'Assets' / 'Item_Drops' / 'Chest' / 'Treasure_Chest_open.png'
         self.coin_sound_path = pathlib.Path.cwd() / 'Assets' / 'Sounds' / 'coin_collect.wav'
