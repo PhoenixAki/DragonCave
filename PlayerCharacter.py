@@ -1,17 +1,14 @@
+import math
 import pathlib
+from typing import List
 
 import arcade
-import math
-from typing import List
 from arcade.draw_commands import Texture
 
 FACE_LEFT = 0
 FACE_RIGHT = 1
 FACE_UP = 2
 FACE_DOWN = 3
-
-CHARACTER_FRAME_WIDTH = 64
-CHARACTER_FRAME_HEIGHT = 64
 
 
 class PlayerCharacter(arcade.AnimatedWalkingSprite):
@@ -31,6 +28,9 @@ class PlayerCharacter(arcade.AnimatedWalkingSprite):
 
         self.cur_texture_index = 0
         self.state = FACE_UP
+
+        self.node_x = None
+        self.node_y = None
 
         # walking textures
         self.walk_left_textures = []
@@ -157,52 +157,57 @@ class PlayerCharacter(arcade.AnimatedWalkingSprite):
 
 
 # use this function to setup a Player Character
-def setup_character(sprite_sheet_path, scl, cent_x, cent_y) -> PlayerCharacter:
+def setup_character(scl, cent_x, cent_y) -> PlayerCharacter:
     character = PlayerCharacter(scale=scl, center_x=cent_x, center_y=cent_y)
+
+    # get sprite sheet path
+    sprite_sheet_path = pathlib.Path.cwd() / 'Assets' / 'Characters' / 'hero_character_1.png'
+
+    character_frame_width = 64
+    character_frame_height = 64
 
     # load walking textures
     for image_num in range(9):
-        frame = arcade.load_texture(str(sprite_sheet_path), image_num * CHARACTER_FRAME_WIDTH,
-                                    CHARACTER_FRAME_HEIGHT * 8, height=CHARACTER_FRAME_HEIGHT,
-                                    width=CHARACTER_FRAME_WIDTH)
+        frame = arcade.load_texture(str(sprite_sheet_path), image_num * character_frame_width,
+                                    character_frame_height * 8, height=character_frame_height,
+                                    width=character_frame_width)
         character.walk_up_textures.append(frame)
 
-        frame = arcade.load_texture(str(sprite_sheet_path), image_num * CHARACTER_FRAME_WIDTH,
-                                    CHARACTER_FRAME_HEIGHT * 9, height=CHARACTER_FRAME_HEIGHT,
-                                    width=CHARACTER_FRAME_WIDTH)
+        frame = arcade.load_texture(str(sprite_sheet_path), image_num * character_frame_width,
+                                    character_frame_height * 9, height=character_frame_height,
+                                    width=character_frame_width)
         character.walk_left_textures.append(frame)
 
-        frame = arcade.load_texture(str(sprite_sheet_path), image_num * CHARACTER_FRAME_WIDTH,
-                                    CHARACTER_FRAME_HEIGHT * 10, height=CHARACTER_FRAME_HEIGHT,
-                                    width=CHARACTER_FRAME_WIDTH)
+        frame = arcade.load_texture(str(sprite_sheet_path), image_num * character_frame_width,
+                                    character_frame_height * 10, height=character_frame_height,
+                                    width=character_frame_width)
         character.walk_down_textures.append(frame)
 
-        frame = arcade.load_texture(str(sprite_sheet_path), image_num * CHARACTER_FRAME_WIDTH,
-                                    CHARACTER_FRAME_HEIGHT * 11, height=CHARACTER_FRAME_HEIGHT,
-                                    width=CHARACTER_FRAME_WIDTH)
+        frame = arcade.load_texture(str(sprite_sheet_path), image_num * character_frame_width,
+                                    character_frame_height * 11, height=character_frame_height,
+                                    width=character_frame_width)
         character.walk_right_textures.append(frame)
 
     # load attack textures
     for image_num in range(13):
-        frame = arcade.load_texture(str(sprite_sheet_path), image_num * CHARACTER_FRAME_WIDTH,
-                                    CHARACTER_FRAME_HEIGHT * 16, height=CHARACTER_FRAME_HEIGHT,
-                                    width=CHARACTER_FRAME_WIDTH)
+        frame = arcade.load_texture(str(sprite_sheet_path), image_num * character_frame_width,
+                                    character_frame_height * 16, height=character_frame_height,
+                                    width=character_frame_width)
         character.spear_up_textures.append(frame)
 
-        frame = arcade.load_texture(str(sprite_sheet_path), image_num * CHARACTER_FRAME_WIDTH,
-                                    CHARACTER_FRAME_HEIGHT * 17, height=CHARACTER_FRAME_HEIGHT,
-                                    width=CHARACTER_FRAME_WIDTH)
+        frame = arcade.load_texture(str(sprite_sheet_path), image_num * character_frame_width,
+                                    character_frame_height * 17, height=character_frame_height,
+                                    width=character_frame_width)
         character.spear_left_textures.append(frame)
 
-        frame = arcade.load_texture(str(sprite_sheet_path), image_num * CHARACTER_FRAME_WIDTH,
-                                    CHARACTER_FRAME_HEIGHT * 18, height=CHARACTER_FRAME_HEIGHT,
-                                    width=CHARACTER_FRAME_WIDTH)
+        frame = arcade.load_texture(str(sprite_sheet_path), image_num * character_frame_width,
+                                    character_frame_height * 18, height=character_frame_height,
+                                    width=character_frame_width)
         character.spear_down_textures.append(frame)
 
-        frame = arcade.load_texture(str(sprite_sheet_path), image_num * CHARACTER_FRAME_WIDTH,
-                                    CHARACTER_FRAME_HEIGHT * 19, height=CHARACTER_FRAME_HEIGHT,
-                                    width=CHARACTER_FRAME_WIDTH)
+        frame = arcade.load_texture(str(sprite_sheet_path), image_num * character_frame_width,
+                                    character_frame_height * 19, height=character_frame_height,
+                                    width=character_frame_width)
         character.spear_right_textures.append(frame)
 
     return character
-

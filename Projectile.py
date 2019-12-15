@@ -7,6 +7,7 @@ FACE_DOWN = 3
 
 
 class Projectile(arcade.Sprite):
+    """Represents the arrows that the player buys and shoots as weapon."""
     def __init__(self, img_path: str, speed: int, direction: int, game_window):
         super().__init__(img_path)
         self.speed = speed

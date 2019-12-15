@@ -11,9 +11,6 @@ FACE_RIGHT = 1
 FACE_UP = 2
 FACE_DOWN = 3
 
-ROAM = 1
-ATTACK = 2
-
 
 class Map(arcade.Window):
     def __init__(self, cave_1_graph, cave_2_graph):
@@ -32,7 +29,7 @@ class Map(arcade.Window):
         self.coin_sound = arcade.Sound(str(self.coin_sound_path))
         self.ruby_sound_path = pathlib.Path.cwd() / 'Assets' / 'Sounds' / 'ruby_collect.wav'
         self.ruby_sound = arcade.Sound(str(self.ruby_sound_path))
-        # -----------
+
         self.boss_damage_sound_path = pathlib.Path.cwd() / 'Assets' / 'Sounds' / 'boss_damage_0.wav'
         self.boss_damage_sound = arcade.Sound(str(self.boss_damage_sound_path))
 
@@ -111,7 +108,7 @@ class Map(arcade.Window):
         self.process_map()
 
         # setup golem boss
-        self.golem_boss = GolemEnemy.setup_golem(1.7, 0, 0, (64 * 5) + 32, 485)
+        self.golem_boss = GolemEnemy.setup_golem(1.7, 0, 0, (64 * 5) + 32, 485, 3, 300)
         self.golem_list = arcade.SpriteList()
         self.golem_list.append(self.golem_boss)
 
@@ -126,39 +123,21 @@ class Map(arcade.Window):
         # setup physics engine
         self.simple_Physics = arcade.PhysicsEngineSimple(self.character, self.wall_list)
 
+# ######################## Game functions #############################
     def on_update(self, delta_time: float):
-
-        # FOREST MAP UPDATES ------------
+        # map-specific updates
         if self.current_map == self.forest_map:
             self.forest_update()
-
-        # CAVE 1 MAP UPDATES --------------
         elif self.current_map == self.cave_1_map:
             self.cave_1_update()
-
-        # CAVE 1 OPEN DOOR MAP UPDATES -----------
         elif self.current_map == self.cave_1_open:
             self.cave_1_open_update()
-
-        # CAVE 2 MAP UPDATES ------------
         elif self.current_map == self.cave_2_map:
             self.cave_2_update()
 
-        # ****** BELOW: UPDATES THAT HAPPEN ON EVERY MAP *************
-        # these have to happen every time to avoid "Exception: Error: Attempt to draw a sprite without a texture set."
-        if self.current_map == self.cave_1_map:
-            self.cave_1_enemies.update()
-            self.cave_1_enemies.update_animation()
-            self.enemy_drop_list.update_animation()
-        elif self.current_map == self.cave_1_open:
-            self.enemy_drop_list.update_animation()
-        elif self.current_map == self.cave_2_map:
-            self.golem_list.update()
-            self.golem_list.update_animation()
-
         # update animations using frame rate
         self.frame_time += delta_time
-        if self.frame_time > 1/30:  # 30fps for now?
+        if self.frame_time > 1/30:
             self.frame_time = 0
             self.char_list.update()
             self.char_list.update_animation()
@@ -169,16 +148,15 @@ class Map(arcade.Window):
         if self.chest_opened:
             self.animated_crystal.update_animation()
 
-        # *********************************************************
-
+        # ensure player doesn't run through walls
         self.simple_Physics.update()
 
-        # projectiles
+        # move + kill projectiles
         self.character_projectile_list.update()
         [proj.kill() for proj in self.character_projectile_list
          if arcade.check_for_collision_with_list(proj, self.wall_list)]
 
-        # check if player is dead
+        # end game if player dies
         if self.character.health <= 0:
             self.character.kill()
             print("You lose.")
@@ -227,6 +205,7 @@ class Map(arcade.Window):
                 self.animated_crystal.draw()
 
         self.char_list.draw()
+
         if self.HUD is True:
             arcade.draw_rectangle_filled(150, 875, 185, 135, arcade.color.DAVY_GREY)
             arcade.draw_text("HEALTH: " + str(self.character.health), 80, 920, arcade.color.BLACK, 15)
@@ -234,6 +213,7 @@ class Map(arcade.Window):
             arcade.draw_text("ARROWS: " + str(self.character.arrows), 80, 860, arcade.color.BLACK, 15)
             arcade.draw_text("ITEMS: " + self.item_list, 80, 830, arcade.color.BLACK, 12)
 
+# ######################## Keyboard input functions #############################
     def on_key_press(self, key: int, modifiers: int):
         # character movement
         if not self.character.attacking:
@@ -281,10 +261,9 @@ class Map(arcade.Window):
         elif key == arcade.key.LEFT or key == arcade.key.A or key == arcade.key.RIGHT or key == arcade.key.D:
             self.character.change_x = 0
 
-# ######################## Utility functions #############################
+# ######################## Setup functions #############################
     def setup_character(self):
-        hero_sprite_sheet_path = pathlib.Path.cwd() / 'Assets' / 'Characters' / 'hero_character_1.png'
-        self.character = PlayerCharacter.setup_character(hero_sprite_sheet_path, 1, 64 * 11 + 32, 64 * 3 + 32)
+        self.character = PlayerCharacter.setup_character(1, 480, 700)
         self.char_list = arcade.SpriteList()
         self.char_list.append(self.character)
         self.character_projectile_list = arcade.SpriteList()
@@ -310,49 +289,41 @@ class Map(arcade.Window):
         self.arrow_sprites = [self.left_arrow_sprite_path, self.right_arrow_sprite_path,
                               self.up_arrow_sprite_path, self.down_arrow_sprite_path]
 
-    def process_map(self):
-        self.current_map_tmx = arcade.tilemap.read_tmx(str(self.current_map))
-        self.floor_list = arcade.tilemap.process_layer(self.current_map_tmx, "floor_layer", 1)
-        self.wall_list = arcade.tilemap.process_layer(self.current_map_tmx, "walls_layer", 1)
-        self.simple_Physics = arcade.PhysicsEngineSimple(self.character, self.wall_list)
-
-    def shoot_arrow(self):
-        new_arrow_sprite = Projectile(self.arrow_sprites[self.character.state], speed=12,
-                                      direction=self.character.state, game_window=self)
-        new_arrow_sprite.center_y = self.character.center_y
-        new_arrow_sprite.center_x = self.character.center_x
-        self.character_projectile_list.append(new_arrow_sprite)
-        self.character.arrows -= 1
-
     def setup_cave_1(self):
-        goblin1 = GoblinEnemy.setup_goblin(self.goblin_path, 1, 1.5, 0, 700, 200, "coin")
-        goblin2 = GoblinEnemy.setup_goblin(self.goblin_path, 1, -1.5, 0, 600, 300, "coin")
-        goblin3 = GoblinEnemy.setup_goblin(self.goblin_path, 1, 0, 1.5, 500, 400, "coin")
-        goblin4 = GoblinEnemy.setup_goblin(self.goblin_path, 1, 0, -1.5, 400, 500, "coin")
-        wyvern1 = WyvernEnemy.setup_wyvern(.9, 3, 0, 750, 250, "ruby")
-        wyvern2 = WyvernEnemy.setup_wyvern(.9, -3, 0, 650, 600, "ruby")
-        wyvern3 = WyvernEnemy.setup_wyvern(.9, 0, 3, 750, 450, "ruby")
-        wyvern4 = WyvernEnemy.setup_wyvern(.9, 0, -3, 200, 550, "ruby")
+        # TODO uncomment enemy spawns once path movement is working fully
+        goblin1 = GoblinEnemy.setup_goblin(1, 1.5, 0, 700, 200, "coin", 1, 800)
+        # goblin2 = GoblinEnemy.setup_goblin(1, -1.5, 0, 600, 300, "coin", 1, 64)
+        # goblin3 = GoblinEnemy.setup_goblin(1, 0, 1.5, 500, 400, "coin", 1, 64)
+        # goblin4 = GoblinEnemy.setup_goblin(1, 0, -1.5, 400, 500, "coin", 1, 64)
+        # wyvern1 = WyvernEnemy.setup_wyvern(.9, 3, 0, 750, 250, "ruby", 2, 78)
+        # wyvern2 = WyvernEnemy.setup_wyvern(.9, -3, 0, 650, 600, "ruby", 2, 78)
+        # wyvern3 = WyvernEnemy.setup_wyvern(.9, 0, 3, 750, 450, "ruby", 2, 78)
+        # wyvern4 = WyvernEnemy.setup_wyvern(.9, 0, -3, 200, 550, "ruby", 2, 78)
         self.cave_1_enemies.append(goblin1)
-        self.cave_1_enemies.append(goblin2)
-        self.cave_1_enemies.append(goblin3)
-        self.cave_1_enemies.append(goblin4)
-        self.cave_1_enemies.append(wyvern1)
-        self.cave_1_enemies.append(wyvern2)
-        self.cave_1_enemies.append(wyvern3)
-        self.cave_1_enemies.append(wyvern4)
+        # self.cave_1_enemies.append(goblin2)
+        # self.cave_1_enemies.append(goblin3)
+        # self.cave_1_enemies.append(goblin4)
+        # self.cave_1_enemies.append(wyvern1)
+        # self.cave_1_enemies.append(wyvern2)
+        # self.cave_1_enemies.append(wyvern3)
+        # self.cave_1_enemies.append(wyvern4)
 
     def setup_animated_crystal(self):
         path = pathlib.Path.cwd() / 'Assets' / 'Item_Drops' / 'Crystal' / 'crystal.png'
         self.animated_crystal = arcade.AnimatedTimeSprite(1, center_x=64 * 12 + 32, center_y=64 * 13 + 32)
         crystal_frames = []
         for col in range(8):
-            frame = arcade.load_texture(str(path), x=col * 32, y=0,
-                                        width=32, height=32)
+            frame = arcade.load_texture(str(path), col * 32, 0, 32, 32)
             crystal_frames.append(frame)
         self.animated_crystal.textures = crystal_frames
 
-    # ----UPDATE FUNCTIONS----
+    def process_map(self):
+        self.current_map_tmx = arcade.tilemap.read_tmx(str(self.current_map))
+        self.floor_list = arcade.tilemap.process_layer(self.current_map_tmx, "floor_layer", 1)
+        self.wall_list = arcade.tilemap.process_layer(self.current_map_tmx, "walls_layer", 1)
+        self.simple_Physics = arcade.PhysicsEngineSimple(self.character, self.wall_list)
+
+# ######################## Update functions #############################
     def forest_update(self):
         if (64 * 7) + 5 <= self.character.center_x <= (64 * 7) + 59 and self.character.center_y >= (64 * 13) + 20:
             # set character to opening of cave_1 and update physics engine
@@ -367,8 +338,11 @@ class Map(arcade.Window):
             self.display_message = False
 
     def cave_1_update(self):
-        self.cave_1_enemies.update()
+        for enemy in self.cave_1_enemies:
+            enemy.move(self.character, self.cave_1_graph)
         self.cave_1_enemies.update_animation()
+        self.enemy_drop_list.update_animation()
+
         # check for collision between projectiles and enemies
         for proj in self.character_projectile_list:
             collisions = arcade.check_for_collision_with_list(proj, self.cave_1_enemies)
@@ -417,6 +391,8 @@ class Map(arcade.Window):
                 enemy.change_y = enemy.walking_y
 
     def cave_1_open_update(self):
+        self.enemy_drop_list.update_animation()
+
         # check if player is entering cave 2
         if self.character.center_x >= 64 * 15 and (64 * 6 <= self.character.center_y <= 64 * 9):
             self.current_map = self.cave_2_map
@@ -440,6 +416,9 @@ class Map(arcade.Window):
             self.character.crystal = True
 
     def cave_2_update(self):
+        self.golem_list.update()
+        self.golem_list.update_animation()
+
         # ROOM EXITING
         if self.character.center_x <= -10 and (64 * 6 <= self.character.center_y <= 64 * 9):
             self.current_map = self.cave_1_open
@@ -447,7 +426,9 @@ class Map(arcade.Window):
             # set character to opening of cave_1
             self.character.center_y = (64 * 7) + 32
             self.character.center_x = (64 * 14) + 32
-        # BOSS INTERACTION ***
+
+        # TODO remove once boss moves properly with BFS paths
+        '''# BOSS INTERACTION ***
         if arcade.get_distance_between_sprites(self.character, self.golem_boss) <= 300.0 and len(self.golem_list) > 0:
             self.golem_boss.character_x_loc = self.character.center_x
             self.golem_boss.character_y_loc = self.character.center_y
@@ -455,7 +436,7 @@ class Map(arcade.Window):
                 self.golem_boss.move_state = ATTACK
                 self.golem_attack_sound.play()
         else:
-            self.golem_boss.move_state = ROAM
+            self.golem_boss.move_state = RO'''
 
         if len(self.golem_list) > 0:
             boss_collisions = arcade.check_for_collision_with_list(self.character, self.golem_list)
@@ -486,7 +467,14 @@ class Map(arcade.Window):
                 self.collect_crystal_sound.play()
             self.character.crystal = True
 
-    # -----------------
+# ######################## Item + Weapon functions #############################
+    def shoot_arrow(self):
+        new_arrow_sprite = Projectile(self.arrow_sprites[self.character.state], 12, self.character.state, self)
+        new_arrow_sprite.center_y = self.character.center_y
+        new_arrow_sprite.center_x = self.character.center_x
+        self.character_projectile_list.append(new_arrow_sprite)
+        self.character.arrows -= 1
+
     def upgrade_to_magic_fire_arrows(self):
         self.left_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'left_fire_arrow.png'
         self.right_arrow_sprite_path = pathlib.Path.cwd() / 'Assets' / 'Projectiles' / 'right_fire_arrow.png'
@@ -544,6 +532,7 @@ class Map(arcade.Window):
                 self.character_speed = 5
 
 
+# ######################## Static functions #############################
 def create_coin_drop(x, y):
     path = pathlib.Path.cwd() / 'Assets' / 'Item_Drops' / 'Coin'
     coin = arcade.AnimatedTimeSprite(1, center_x=x, center_y=y)
