@@ -108,7 +108,7 @@ class Map(arcade.Window):
         self.process_map()
 
         # setup golem boss
-        self.golem_boss = GolemEnemy.setup_golem(1.7, 0, 0, (64 * 5) + 32, 485, 3, 300)
+        self.golem_boss = GolemEnemy.setup_golem(1.7, 416, 480, 3, 500, 3, 3, 3)  # TODO adjust range, 500 is a default for now
         self.golem_list = arcade.SpriteList()
         self.golem_list.append(self.golem_boss)
 
@@ -125,38 +125,49 @@ class Map(arcade.Window):
 
 # ######################## Game functions #############################
     def on_update(self, delta_time: float):
-        # map-specific updates
+        # FOREST MAP UPDATES ------------
         if self.current_map == self.forest_map:
             self.forest_update()
+        # CAVE 1 MAP UPDATES --------------
         elif self.current_map == self.cave_1_map:
             self.cave_1_update()
+        # CAVE 1 OPEN DOOR MAP UPDATES -----------
         elif self.current_map == self.cave_1_open:
             self.cave_1_open_update()
+        # CAVE 2 MAP UPDATES ------------
         elif self.current_map == self.cave_2_map:
             self.cave_2_update()
-
+        # ****** BELOW: UPDATES THAT HAPPEN ON EVERY MAP *************
+        # these have to happen every time to avoid "Exception: Error: Attempt to draw a sprite without a texture set."
+        if self.current_map == self.cave_1_map:
+            for enemy in self.cave_1_enemies:
+                enemy.move(self.character, self.cave_1_graph)
+            self.cave_1_enemies.update_animation()
+            self.enemy_drop_list.update_animation()
+        elif self.current_map == self.cave_1_open:
+            self.enemy_drop_list.update_animation()
+        elif self.current_map == self.cave_2_map:
+            for golem in self.golem_list:
+                golem.move(self.character, self.cave_2_graph)
+            self.golem_list.update_animation()
         # update animations using frame rate
         self.frame_time += delta_time
-        if self.frame_time > 1/30:
+        if self.frame_time > 1 / 30:  # 30fps for now?
             self.frame_time = 0
             self.char_list.update()
             self.char_list.update_animation()
-
         # update key animation if boss dead
         if len(self.golem_list) <= 0 and not self.character.chest_key:
             self.animated_key.update_animation()
         if self.chest_opened:
             self.animated_crystal.update_animation()
-
-        # ensure player doesn't run through walls
+        # *********************************************************
         self.simple_Physics.update()
-
-        # move + kill projectiles
+        # projectiles
         self.character_projectile_list.update()
         [proj.kill() for proj in self.character_projectile_list
          if arcade.check_for_collision_with_list(proj, self.wall_list)]
-
-        # end game if player dies
+        # check if player is dead
         if self.character.health <= 0:
             self.character.kill()
             print("You lose.")
@@ -215,6 +226,10 @@ class Map(arcade.Window):
 
 # ######################## Keyboard input functions #############################
     def on_key_press(self, key: int, modifiers: int):
+        # TODO remove this when done
+        if key == arcade.key.LSHIFT:
+            print(self.character.center_x, self.character.center_y)
+
         # character movement
         if not self.character.attacking:
             if key == arcade.key.UP or key == arcade.key.W:
@@ -244,8 +259,7 @@ class Map(arcade.Window):
             if self.current_map == self.forest_map:
                     self.npc_interactions()
             elif self.current_map == self.cave_2_map:
-                if 64 * 14 >= self.character.center_x >= 64 * 13 >= self.character.center_y >= 64 * 12 \
-                        and self.character.chest_key:
+                if self.character.center_x == 864 and self.character.center_y == 800 and self.character.chest_key:
                     self.chest.set_texture(1)
                     self.chest_opened = True
                     self.chest_open_sound.play()
@@ -263,7 +277,7 @@ class Map(arcade.Window):
 
 # ######################## Setup functions #############################
     def setup_character(self):
-        self.character = PlayerCharacter.setup_character(1, 480, 700)
+        self.character = PlayerCharacter.setup_character(1, 480, 200)
         self.char_list = arcade.SpriteList()
         self.char_list.append(self.character)
         self.character_projectile_list = arcade.SpriteList()
@@ -290,23 +304,24 @@ class Map(arcade.Window):
                               self.up_arrow_sprite_path, self.down_arrow_sprite_path]
 
     def setup_cave_1(self):
-        # TODO uncomment enemy spawns once path movement is working fully
-        goblin1 = GoblinEnemy.setup_goblin(1, 1.5, 0, 700, 200, "coin", 1, 800)
-        # goblin2 = GoblinEnemy.setup_goblin(1, -1.5, 0, 600, 300, "coin", 1, 64)
-        # goblin3 = GoblinEnemy.setup_goblin(1, 0, 1.5, 500, 400, "coin", 1, 64)
-        # goblin4 = GoblinEnemy.setup_goblin(1, 0, -1.5, 400, 500, "coin", 1, 64)
-        # wyvern1 = WyvernEnemy.setup_wyvern(.9, 3, 0, 750, 250, "ruby", 2, 78)
-        # wyvern2 = WyvernEnemy.setup_wyvern(.9, -3, 0, 650, 600, "ruby", 2, 78)
-        # wyvern3 = WyvernEnemy.setup_wyvern(.9, 0, 3, 750, 450, "ruby", 2, 78)
-        # wyvern4 = WyvernEnemy.setup_wyvern(.9, 0, -3, 200, 550, "ruby", 2, 78)
+        # TODO adjust ranges to start following the player from further away
+        # TODO possibly decrease how many enemies total and increase value of drops?
+        goblin1 = GoblinEnemy.setup_goblin(1, 672, 224, "coin", 1, 64, 1, 1, 1)
+        goblin2 = GoblinEnemy.setup_goblin(1, 160, 800, "coin", 1, 64, 1, 1, 1)
+        goblin3 = GoblinEnemy.setup_goblin(1, 160, 288, "coin", 1, 64, 1, 1, 1)
+        goblin4 = GoblinEnemy.setup_goblin(1, 800, 800, "coin", 1, 64, 1, 1, 1)
+        wyvern1 = WyvernEnemy.setup_wyvern(.9, 288, 160, "ruby", 2, 78, 1, 1, 1)
+        wyvern2 = WyvernEnemy.setup_wyvern(.9, 736, 544, "ruby", 2, 78, 1, 1, 1)
+        wyvern3 = WyvernEnemy.setup_wyvern(.9, 480, 672, "ruby", 2, 78, 1, 1, 1)
+        wyvern4 = WyvernEnemy.setup_wyvern(.9, 480, 352, "ruby", 2, 78, 1, 1, 1)
         self.cave_1_enemies.append(goblin1)
-        # self.cave_1_enemies.append(goblin2)
-        # self.cave_1_enemies.append(goblin3)
-        # self.cave_1_enemies.append(goblin4)
-        # self.cave_1_enemies.append(wyvern1)
-        # self.cave_1_enemies.append(wyvern2)
-        # self.cave_1_enemies.append(wyvern3)
-        # self.cave_1_enemies.append(wyvern4)
+        self.cave_1_enemies.append(goblin2)
+        self.cave_1_enemies.append(goblin3)
+        self.cave_1_enemies.append(goblin4)
+        self.cave_1_enemies.append(wyvern1)
+        self.cave_1_enemies.append(wyvern2)
+        self.cave_1_enemies.append(wyvern3)
+        self.cave_1_enemies.append(wyvern4)
 
     def setup_animated_crystal(self):
         path = pathlib.Path.cwd() / 'Assets' / 'Item_Drops' / 'Crystal' / 'crystal.png'
@@ -338,11 +353,6 @@ class Map(arcade.Window):
             self.display_message = False
 
     def cave_1_update(self):
-        for enemy in self.cave_1_enemies:
-            enemy.move(self.character, self.cave_1_graph)
-        self.cave_1_enemies.update_animation()
-        self.enemy_drop_list.update_animation()
-
         # check for collision between projectiles and enemies
         for proj in self.character_projectile_list:
             collisions = arcade.check_for_collision_with_list(proj, self.cave_1_enemies)
@@ -382,14 +392,6 @@ class Map(arcade.Window):
         # pick up coins and rubies
         self.pickup_drops()
 
-        for enemy in self.cave_1_enemies:
-            if arcade.get_distance_between_sprites(self.character, enemy) < enemy.range:
-                enemy.change_x = 0
-                enemy.change_y = 0
-            else:
-                enemy.change_x = enemy.walking_x
-                enemy.change_y = enemy.walking_y
-
     def cave_1_open_update(self):
         self.enemy_drop_list.update_animation()
 
@@ -410,13 +412,7 @@ class Map(arcade.Window):
         # pick up coins and rubies
         self.pickup_drops()
 
-        # ***opening chest happens in key press detection***
-        # pick up crystal here
-        if 64 * 12 <= self.character.center_x <= 64 * 13 <= self.character.center_y <= 64 * 14 and self.chest_opened:
-            self.character.crystal = True
-
     def cave_2_update(self):
-        self.golem_list.update()
         self.golem_list.update_animation()
 
         # ROOM EXITING
@@ -427,17 +423,7 @@ class Map(arcade.Window):
             self.character.center_y = (64 * 7) + 32
             self.character.center_x = (64 * 14) + 32
 
-        # TODO remove once boss moves properly with BFS paths
-        '''# BOSS INTERACTION ***
-        if arcade.get_distance_between_sprites(self.character, self.golem_boss) <= 300.0 and len(self.golem_list) > 0:
-            self.golem_boss.character_x_loc = self.character.center_x
-            self.golem_boss.character_y_loc = self.character.center_y
-            if self.golem_boss.move_state is not ATTACK:
-                self.golem_boss.move_state = ATTACK
-                self.golem_attack_sound.play()
-        else:
-            self.golem_boss.move_state = RO'''
-
+        # collision with player
         if len(self.golem_list) > 0:
             boss_collisions = arcade.check_for_collision_with_list(self.character, self.golem_list)
             if len(boss_collisions) > 0:
