@@ -11,9 +11,9 @@ class Enemy(arcade.AnimatedWalkingSprite):
     Base class that all enemies inherit from. Mostly used to save code repetition to save space.
 
     Notable Parameters:
-        **state** - ROAMING and ATTACKING are used to determine whether to calculate paths to the player or not.
+        **move_state** - ROAMING and ATTACKING are used to determine whether to calculate paths to the player or not.
 
-        **range** - Determines how close to the enemy a player should get before switching to ATTACK state.
+        **range** - Determines how close to the enemy a player should get before switching to ATTACK move_state.
 
         **speed** - How many pixels the Enemy should move each time move_next_node is called (every frame).
 
@@ -27,7 +27,19 @@ class Enemy(arcade.AnimatedWalkingSprite):
     def __init__(self, scale, center_x, center_y, health, init_range, speed, change_x, change_y):
         super().__init__(scale=scale, center_x=center_x, center_y=center_y)
 
-        self.state = None  # can be ROAMING or ATTACKING
+        self.FACE_LEFT = 0
+        self.FACE_RIGHT = 1
+        self.FACE_UP = 2
+        self.FACE_DOWN = 3
+
+        self.MOVING_LEFT = 4
+        self.MOVING_RIGHT = 5
+        self.MOVING_UP = 6
+        self.MOVING_DOWN = 7
+
+        self.move_state = None  # can be ROAMING or ATTACKING
+        self.state = None
+        self.direction = self.MOVING_LEFT
         self.range = init_range
         self.speed = speed
 
@@ -42,21 +54,18 @@ class Enemy(arcade.AnimatedWalkingSprite):
 
         self.health = health  # all enemies have health (goblins have 1, wyverns have 2, golems have 3)
 
-        self.FACE_LEFT = 0
-        self.FACE_RIGHT = 1
-        self.FACE_UP = 2
-        self.FACE_DOWN = 3
-
         self.path = deque()  # path can be either randomized or towards a player
         self.player_loc = None  # only updates path if player is in a different node than previously known
         self.build_again = True  # determines if a new random path needs to be created
 
     def move(self, character: PlayerCharacter, graph):
-        """Manages state, calculates paths to the player, and moves the enemy according to said paths."""
-        if arcade.get_distance_between_sprites(self, character) <= self.range:
-            self.state = "ATTACKING"
-        elif arcade.get_distance_between_sprites(self, character) > self.range:
-            self.state = "ROAMING"
+        """Manages move_state, calculates paths to the player, and moves the enemy according to said paths."""
+        # enemy attacks 
+        if arcade.get_distance_between_sprites(self, character) <= self.range and not character.temp_invincibility:
+            self.move_state = "ATTACKING"
+        # elif arcade.get_distance_between_sprites(self, character) > self.range:
+        else:
+            self.move_state = "ROAMING"
 
         cur_node_x = int(self.center_x / 64)
         cur_node_y = int((960-self.center_y) / 64)
@@ -66,7 +75,7 @@ class Enemy(arcade.AnimatedWalkingSprite):
             next_node = None
 
         # if attacking, move according to path
-        if self.state is "ATTACKING":
+        if self.move_state is "ATTACKING":
             char_node_x = int(character.center_x / 64)
             char_node_y = int((960-character.center_y) / 64)
             cur_player_loc = (char_node_x, char_node_y)
@@ -82,7 +91,7 @@ class Enemy(arcade.AnimatedWalkingSprite):
             if next_node is not None:
                 self.move_next_node(next_node)
         # if roaming, move in random directions
-        elif self.state is "ROAMING":
+        elif self.move_state is "ROAMING":
             if self.build_again is True:
                 self.build_random_path(graph[cur_node_y][cur_node_x])
                 self.build_again = False
@@ -101,24 +110,32 @@ class Enemy(arcade.AnimatedWalkingSprite):
 
         # move towards the next node and bounce back to the center if enemy goes past it
         if self.center_x > next_node.x_pixel_loc:  # left
+            self.direction = self.MOVING_LEFT
             if self.center_x - self.change_x < next_node.x_pixel_loc:
                 self.center_x = next_node.x_pixel_loc
             else:
+                # self.change_x = (-1)*self.speed
                 self.center_x -= self.change_x
         elif self.center_x < next_node.x_pixel_loc:  # right
+            self.direction = self.MOVING_RIGHT
             if self.center_x + self.change_x > next_node.x_pixel_loc:
                 self.center_x = next_node.x_pixel_loc
             else:
+                # self.change_x = self.speed
                 self.center_x += self.change_x
         elif self.center_y > next_node.y_pixel_loc:  # down
+            self.direction = self.MOVING_DOWN
             if self.center_y - self.change_y < next_node.y_pixel_loc:
                 self.center_y = next_node.y_pixel_loc
             else:
+                # self.change_y = (-1)*self.speed
                 self.center_y -= self.change_y
         elif self.center_y < next_node.y_pixel_loc:  # up
+            self.direction = self.MOVING_UP
             if self.center_y + self.change_y > next_node.y_pixel_loc:
                 self.center_y = next_node.y_pixel_loc
             else:
+                # self.change_x = self.speed
                 self.center_y += self.change_y
 
     def build_player_path(self, graph, player_node_x: int, player_node_y: int, cur_node_x, cur_node_y, next_node):

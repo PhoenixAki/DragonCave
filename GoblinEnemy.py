@@ -13,16 +13,11 @@ class GoblinEnemy(Enemy):
     def __init__(self, scale: float, center_x: float, center_y: float, health: int, init_range: int, speed: int, change_x: int, change_y: int):
         super().__init__(scale, center_x, center_y, health, init_range, speed, change_x, change_y)
 
-        self.attack_left_textures = []
-        self.attack_right_textures = []
-        self.attack_up_textures = []
-        self.attack_down_textures = []
-
         self.cur_texture_index = 0
         self.texture_list = None
         self.drop = None
 
-    def update_animation(self, delta_time=1/30):
+    def update_animation(self, delta_time=1/10):
         """
         Logic for selecting the proper texture to use.
         """
@@ -36,13 +31,13 @@ class GoblinEnemy(Enemy):
         distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
         change_direction = True
-        if self.change_x < 0 < len(self.walk_left_textures) and self.state != self.FACE_LEFT:
+        if self.direction == self.MOVING_LEFT and 0 < len(self.walk_left_textures) and self.state != self.FACE_LEFT:
             self.state = self.FACE_LEFT
-        elif self.change_x > 0 < len(self.walk_right_textures) and self.state != self.FACE_RIGHT:
+        elif self.direction == self.MOVING_RIGHT and 0 < len(self.walk_right_textures) and self.state != self.FACE_RIGHT:
             self.state = self.FACE_RIGHT
-        elif self.change_y < 0 < len(self.walk_down_textures) and self.state != self.FACE_DOWN:
+        elif self.direction == self.MOVING_DOWN and 0 < len(self.walk_down_textures) and self.state != self.FACE_DOWN:
             self.state = self.FACE_DOWN
-        elif self.change_y > 0 < len(self.walk_up_textures) and self.state != self.FACE_UP:
+        elif self.direction == self.MOVING_UP and 0 < len(self.walk_up_textures) and self.state != self.FACE_UP:
             self.state = self.FACE_UP
         else:
             change_direction = False
@@ -111,29 +106,6 @@ def setup_goblin(scl, cent_x, cent_y, drop, health, init_range, speed, change_x,
                                     goblin_frame_height * 0, height=goblin_frame_height,
                                     width=goblin_frame_width)
         goblin.walk_down_textures.append(frame)
-
-    for num in range(4):
-        image_num = num + 7
-
-        frame = arcade.load_texture(str(sprite_sheet_path), image_num * goblin_frame_width,
-                                    goblin_frame_height * 3, height=goblin_frame_height,
-                                    width=goblin_frame_width)
-        goblin.attack_left_textures.append(frame)
-
-        frame = arcade.load_texture(str(sprite_sheet_path), image_num * goblin_frame_width,
-                                    goblin_frame_height * 1, height=goblin_frame_height,
-                                    width=goblin_frame_width)
-        goblin.attack_right_textures.append(frame)
-
-        frame = arcade.load_texture(str(sprite_sheet_path), image_num * goblin_frame_width,
-                                    goblin_frame_height * 2, height=goblin_frame_height,
-                                    width=goblin_frame_width)
-        goblin.attack_up_textures.append(frame)
-
-        frame = arcade.load_texture(str(sprite_sheet_path), image_num * goblin_frame_width,
-                                    goblin_frame_height * 0, height=goblin_frame_height,
-                                    width=goblin_frame_width)
-        goblin.attack_down_textures.append(frame)
 
     goblin.drop = drop
     goblin.texture = goblin.walk_left_textures[0]

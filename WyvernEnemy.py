@@ -34,13 +34,14 @@ class WyvernEnemy(Enemy):
         distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
         change_direction = True
-        if self.change_x < 0 < len(self.walk_left_textures) and self.state != self.FACE_LEFT:
+        if self.direction == self.MOVING_LEFT and 0 < len(self.walk_left_textures) and self.state != self.FACE_LEFT:
             self.state = self.FACE_LEFT
-        elif self.change_x > 0 < len(self.walk_right_textures) and self.state != self.FACE_RIGHT:
+        elif self.direction == self.MOVING_RIGHT and 0 < len(
+                self.walk_right_textures) and self.state != self.FACE_RIGHT:
             self.state = self.FACE_RIGHT
-        elif self.change_y < 0 < len(self.walk_down_textures) and self.state != self.FACE_DOWN:
+        elif self.direction == self.MOVING_DOWN and 0 < len(self.walk_down_textures) and self.state != self.FACE_DOWN:
             self.state = self.FACE_DOWN
-        elif self.change_y > 0 < len(self.walk_up_textures) and self.state != self.FACE_UP:
+        elif self.direction == self.MOVING_UP and 0 < len(self.walk_up_textures) and self.state != self.FACE_UP:
             self.state = self.FACE_UP
         else:
             change_direction = False

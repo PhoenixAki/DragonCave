@@ -306,14 +306,14 @@ class Map(arcade.Window):
     def setup_cave_1(self):
         # TODO adjust ranges to start following the player from further away
         # TODO possibly decrease how many enemies total and increase value of drops?
-        goblin1 = GoblinEnemy.setup_goblin(1, 672, 224, "coin", 1, 64, 1, 1, 1)
-        goblin2 = GoblinEnemy.setup_goblin(1, 160, 800, "coin", 1, 64, 1, 1, 1)
-        goblin3 = GoblinEnemy.setup_goblin(1, 160, 288, "coin", 1, 64, 1, 1, 1)
-        goblin4 = GoblinEnemy.setup_goblin(1, 800, 800, "coin", 1, 64, 1, 1, 1)
-        wyvern1 = WyvernEnemy.setup_wyvern(.9, 288, 160, "ruby", 2, 78, 1, 1, 1)
-        wyvern2 = WyvernEnemy.setup_wyvern(.9, 736, 544, "ruby", 2, 78, 1, 1, 1)
-        wyvern3 = WyvernEnemy.setup_wyvern(.9, 480, 672, "ruby", 2, 78, 1, 1, 1)
-        wyvern4 = WyvernEnemy.setup_wyvern(.9, 480, 352, "ruby", 2, 78, 1, 1, 1)
+        goblin1 = GoblinEnemy.setup_goblin(1, 672, 224, "coin", 1, 300, 1, 1, 1)
+        goblin2 = GoblinEnemy.setup_goblin(1, 160, 800, "coin", 1, 300, 1, 1, 1)
+        goblin3 = GoblinEnemy.setup_goblin(1, 160, 288, "coin", 1, 300, 1, 1, 1)
+        goblin4 = GoblinEnemy.setup_goblin(1, 800, 800, "coin", 1, 300, 1, 1, 1)
+        wyvern1 = WyvernEnemy.setup_wyvern(.9, 288, 160, "ruby", 2, 300, 1, 1, 1)
+        wyvern2 = WyvernEnemy.setup_wyvern(.9, 736, 544, "ruby", 2, 300, 1, 1, 1)
+        wyvern3 = WyvernEnemy.setup_wyvern(.9, 480, 672, "ruby", 2, 300, 1, 1, 1)
+        wyvern4 = WyvernEnemy.setup_wyvern(.9, 480, 352, "ruby", 2, 300, 1, 1, 1)
         self.cave_1_enemies.append(goblin1)
         self.cave_1_enemies.append(goblin2)
         self.cave_1_enemies.append(goblin3)
