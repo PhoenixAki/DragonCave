@@ -24,7 +24,7 @@ class Enemy(arcade.AnimatedWalkingSprite):
 
         **player_loc** - Used to determine if the player has moved to a new location or not.
     """
-    def __init__(self, scale, center_x, center_y, health, init_range, speed, change_x, change_y):
+    def __init__(self, scale, center_x, center_y, health, init_range, change_x, change_y):
         super().__init__(scale=scale, center_x=center_x, center_y=center_y)
 
         self.FACE_LEFT = 0
@@ -41,7 +41,8 @@ class Enemy(arcade.AnimatedWalkingSprite):
         self.state = None
         self.direction = self.MOVING_LEFT
         self.range = init_range
-        self.speed = speed
+        self.drops = ["", ""]
+        self.drop_index = 0
 
         self.change_x = change_x
         self.change_y = change_y
@@ -51,6 +52,7 @@ class Enemy(arcade.AnimatedWalkingSprite):
         self.walk_right_textures = []
         self.walk_down_textures = []
         self.walk_up_textures = []
+        self.cur_texture_index = 0
 
         self.health = health  # all enemies have health (goblins have 1, wyverns have 2, golems have 3)
 
@@ -114,28 +116,24 @@ class Enemy(arcade.AnimatedWalkingSprite):
             if self.center_x - self.change_x < next_node.x_pixel_loc:
                 self.center_x = next_node.x_pixel_loc
             else:
-                # self.change_x = (-1)*self.speed
                 self.center_x -= self.change_x
         elif self.center_x < next_node.x_pixel_loc:  # right
             self.direction = self.MOVING_RIGHT
             if self.center_x + self.change_x > next_node.x_pixel_loc:
                 self.center_x = next_node.x_pixel_loc
             else:
-                # self.change_x = self.speed
                 self.center_x += self.change_x
         elif self.center_y > next_node.y_pixel_loc:  # down
             self.direction = self.MOVING_DOWN
             if self.center_y - self.change_y < next_node.y_pixel_loc:
                 self.center_y = next_node.y_pixel_loc
             else:
-                # self.change_y = (-1)*self.speed
                 self.center_y -= self.change_y
         elif self.center_y < next_node.y_pixel_loc:  # up
             self.direction = self.MOVING_UP
             if self.center_y + self.change_y > next_node.y_pixel_loc:
                 self.center_y = next_node.y_pixel_loc
             else:
-                # self.change_x = self.speed
                 self.center_y += self.change_y
 
     def build_player_path(self, graph, player_node_x: int, player_node_y: int, cur_node_x, cur_node_y, next_node):
@@ -150,8 +148,8 @@ class Enemy(arcade.AnimatedWalkingSprite):
 
         self.player_search(queue, cur_node, player_node, next_node)
 
-        # TODO remove this print block once testing is done
-        builder = ""
+        # TODO uncomment this print block to display the new path to the player
+        '''builder = ""
         for y in graph:
             for x in y:
                 if x is not None:
@@ -167,7 +165,7 @@ class Enemy(arcade.AnimatedWalkingSprite):
                 else:
                     builder += "x   "
             builder += "\n"
-        print(builder)
+        print(builder)'''
 
     def build_random_path(self, cur_node):
         """Builds a randomized path to move around. Generates 3 random nodes in succession to move to."""
@@ -181,8 +179,6 @@ class Enemy(arcade.AnimatedWalkingSprite):
 
             self.path.appendleft(cur_node.neighbors[rand_neighbor])  # append a random neighbor to path
             cur_node = cur_node.neighbors[rand_neighbor]  # adjust cur_node to the appropriate neighbor
-
-        print("path:", self.path[2].ID, self.path[1].ID, self.path[0].ID)
 
     def player_search(self, queue: deque, start, end: Node, next_node):
         """Uses Breadth First Search to find the shortest path to the player.

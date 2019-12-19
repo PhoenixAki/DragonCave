@@ -5,11 +5,6 @@ from typing import List
 import arcade
 from arcade.draw_commands import Texture
 
-FACE_LEFT = 0
-FACE_RIGHT = 1
-FACE_UP = 2
-FACE_DOWN = 3
-
 
 class PlayerCharacter(arcade.AnimatedWalkingSprite):
     def __init__(self, scale: float, center_x: float, center_y: float):
@@ -26,8 +21,13 @@ class PlayerCharacter(arcade.AnimatedWalkingSprite):
         self.chest_key = False
         self.crystal = False
 
+        self.FACE_LEFT = 0
+        self.FACE_RIGHT = 1
+        self.FACE_UP = 2
+        self.FACE_DOWN = 3
+
         self.cur_texture_index = 0
-        self.state = FACE_UP
+        self.state = self.FACE_UP
 
         self.node_x = None
         self.node_y = None
@@ -82,13 +82,13 @@ class PlayerCharacter(arcade.AnimatedWalkingSprite):
         texture_list: List[Texture] = []
 
         if self.attacking:
-            if self.state == FACE_LEFT:
+            if self.state == self.FACE_LEFT:
                 texture_list = self.spear_left_textures
-            elif self.state == FACE_RIGHT:
+            elif self.state == self.FACE_RIGHT:
                 texture_list = self.spear_right_textures
-            elif self.state == FACE_UP:
+            elif self.state == self.FACE_UP:
                 texture_list = self.spear_up_textures
-            elif self.state == FACE_DOWN:
+            elif self.state == self.FACE_DOWN:
                 texture_list = self.spear_down_textures
 
             if len(texture_list) == 0:
@@ -110,39 +110,39 @@ class PlayerCharacter(arcade.AnimatedWalkingSprite):
             distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
             change_direction = True
-            if self.change_x < 0 < len(self.walk_left_textures) and self.state != FACE_LEFT:
-                self.state = FACE_LEFT
-            elif self.change_x > 0 < len(self.walk_right_textures) and self.state != FACE_RIGHT:
-                self.state = FACE_RIGHT
-            elif self.change_y < 0 < len(self.walk_down_textures) and self.state != FACE_DOWN:
-                self.state = FACE_DOWN
-            elif self.change_y > 0 < len(self.walk_up_textures) and self.state != FACE_UP:
-                self.state = FACE_UP
+            if self.change_x < 0 < len(self.walk_left_textures) and self.state != self.FACE_LEFT:
+                self.state = self.FACE_LEFT
+            elif self.change_x > 0 < len(self.walk_right_textures) and self.state != self.FACE_RIGHT:
+                self.state = self.FACE_RIGHT
+            elif self.change_y < 0 < len(self.walk_down_textures) and self.state != self.FACE_DOWN:
+                self.state = self.FACE_DOWN
+            elif self.change_y > 0 < len(self.walk_up_textures) and self.state != self.FACE_UP:
+                self.state = self.FACE_UP
             else:
                 change_direction = False
 
             # if not moving, load first texture from walk textures (in place of standing textures)
             if self.change_x == 0 and self.change_y == 0:
-                if self.state == FACE_LEFT:
+                if self.state == self.FACE_LEFT:
                     self.texture = self.walk_left_textures[0]
-                elif self.state == FACE_RIGHT:
+                elif self.state == self.FACE_RIGHT:
                     self.texture = self.walk_right_textures[0]
-                elif self.state == FACE_UP:
+                elif self.state == self.FACE_UP:
                     self.texture = self.walk_up_textures[0]
-                elif self.state == FACE_DOWN:
+                elif self.state == self.FACE_DOWN:
                     self.texture = self.walk_down_textures[0]
 
             elif change_direction or distance >= self.texture_change_distance:
                 self.last_texture_change_center_x = self.center_x
                 self.last_texture_change_center_y = self.center_y
 
-                if self.state == FACE_LEFT:
+                if self.state == self.FACE_LEFT:
                     texture_list = self.walk_left_textures
-                elif self.state == FACE_RIGHT:
+                elif self.state == self.FACE_RIGHT:
                     texture_list = self.walk_right_textures
-                elif self.state == FACE_UP:
+                elif self.state == self.FACE_UP:
                     texture_list = self.walk_up_textures
-                elif self.state == FACE_DOWN:
+                elif self.state == self.FACE_DOWN:
                     texture_list = self.walk_down_textures
 
                 if len(texture_list) == 0:

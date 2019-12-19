@@ -8,8 +8,8 @@ from Enemy import Enemy
 
 class GolemEnemy(Enemy):
     """Boss enemy that appears in cave 2. Has 3 health and can only be damaged if the player has magic fire arrows."""
-    def __init__(self, scale: float, center_x: float, center_y: float, health: int, init_range: int, speed: int, change_x: int, change_y: int):
-        super().__init__(scale, center_x, center_y, health, init_range, speed, change_x, change_y)
+    def __init__(self, scale, center_x, center_y, health, init_range, change_x, change_y):
+        super().__init__(scale, center_x, center_y, health, init_range, change_x, change_y)
 
         self.cur_texture_index = 0
 
@@ -73,8 +73,8 @@ class GolemEnemy(Enemy):
             self.texture = texture_list[self.cur_texture_index]
             
             
-def setup_golem(scl, cent_x, cent_y, health, init_range, speed, change_x, change_y):
-    golem = GolemEnemy(scl, cent_x, cent_y, health, init_range, speed, change_x, change_y)
+def setup_golem(scl, cent_x, cent_y, health, init_range, change_x, change_y):
+    golem = GolemEnemy(scl, cent_x, cent_y, health, init_range, change_x, change_y)
 
     # get sprite sheet path
     walking_sprite_sheet = pathlib.Path.cwd() / 'Assets' / 'Enemies' / 'Golem' / 'golem-walk.png'

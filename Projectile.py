@@ -1,10 +1,5 @@
 import arcade
 
-FACE_LEFT = 0
-FACE_RIGHT = 1
-FACE_UP = 2
-FACE_DOWN = 3
-
 
 class Projectile(arcade.Sprite):
     """Represents the arrows that the player buys and shoots as weapon."""
@@ -14,12 +9,17 @@ class Projectile(arcade.Sprite):
         self.direction = direction
         self.game = game_window
 
+        self.FACE_LEFT = 0
+        self.FACE_RIGHT = 1
+        self.FACE_UP = 2
+        self.FACE_DOWN = 3
+
     def update(self):
-        if self.direction == FACE_UP:
+        if self.direction == self.FACE_UP:
             self.center_y += self.speed
-        elif self.direction == FACE_DOWN:
+        elif self.direction == self.FACE_DOWN:
             self.center_y -= self.speed
-        elif self.direction == FACE_LEFT:
+        elif self.direction == self.FACE_LEFT:
             self.center_x -= self.speed
-        elif self.direction == FACE_RIGHT:
+        elif self.direction == self.FACE_RIGHT:
             self.center_x += self.speed

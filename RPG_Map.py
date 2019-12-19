@@ -1,15 +1,13 @@
-import arcade
 import pathlib
-import PlayerCharacter
-import GoblinEnemy
-import WyvernEnemy
-import GolemEnemy
-from Projectile import Projectile
 
-FACE_LEFT = 0
-FACE_RIGHT = 1
-FACE_UP = 2
-FACE_DOWN = 3
+import arcade
+
+import GoblinEnemy
+import GolemEnemy
+import PlayerCharacter
+import WyvernEnemy
+from Enemy import Enemy
+from Projectile import Projectile
 
 
 class Map(arcade.Window):
@@ -55,7 +53,7 @@ class Map(arcade.Window):
         self.sell_buy_item_sound = arcade.Sound(str(self.sell_buy_item_sound_path))
 
         self.arrows_price_str = "50"
-        self.book_price_str = "350"
+        self.book_price_str = "325"
         self.boots_price_str = "150"
 
         self.current_map = None
@@ -67,6 +65,7 @@ class Map(arcade.Window):
         self.HUD = False
         self.chest_opened = False
         self.display_message = False
+        self.golem_roar = True
         self.item_list = ""
 
         # sprites
@@ -90,11 +89,12 @@ class Map(arcade.Window):
         self.golem_list = None
         self.enemy_drop_list = None
 
-        # initialize physics engine + framerate
+        # initialize physics engine + frame rate
         self.simple_Physics = None
         self.frame_time = 0
 
         self.end_game_flag = False
+        self.dead = False
 
     def setup(self):
         # setup players and enemies
@@ -108,7 +108,7 @@ class Map(arcade.Window):
         self.process_map()
 
         # setup golem boss
-        self.golem_boss = GolemEnemy.setup_golem(1.7, 416, 480, 3, 500, 3, 3, 3)  # TODO adjust range, 500 is a default for now
+        self.golem_boss = GolemEnemy.setup_golem(1.7, 416, 480, 3, 500, 3, 3)
         self.golem_list = arcade.SpriteList()
         self.golem_list.append(self.golem_boss)
 
@@ -168,13 +168,18 @@ class Map(arcade.Window):
         [proj.kill() for proj in self.character_projectile_list
          if arcade.check_for_collision_with_list(proj, self.wall_list)]
         # check if player is dead
-        if self.character.health <= 0:
+        if self.character.health <= 0 and self.dead is False:
             self.character.kill()
-            print("You lose.")
-            exit()
+            self.dead = True
 
     def on_draw(self):
         arcade.start_render()
+
+        if self.dead is True:
+            arcade.set_background_color(arcade.color.BLACK)
+            arcade.draw_text("You lose. Press R to restart or ESCAPE to exit.", 50, 480, arcade.color.WHITE, 30)
+            return
+
         self.floor_list.draw()
         self.wall_list.draw()
 
@@ -226,9 +231,10 @@ class Map(arcade.Window):
 
 # ######################## Keyboard input functions #############################
     def on_key_press(self, key: int, modifiers: int):
-        # TODO remove this when done
-        if key == arcade.key.LSHIFT:
-            print(self.character.center_x, self.character.center_y)
+        if self.dead is True and key == arcade.key.R:
+            self.setup()
+            self.dead = False
+            return
 
         # character movement
         if not self.character.attacking:
@@ -255,7 +261,7 @@ class Map(arcade.Window):
                     self.regular_arrow_shoot_sound.play()
 
         # miscellaneous keyboard inputs
-        if key == arcade.key.ENTER and self.character.state == FACE_UP:
+        if key == arcade.key.ENTER and self.character.state == self.character.FACE_UP:
             if self.current_map == self.forest_map:
                     self.npc_interactions()
             elif self.current_map == self.cave_2_map:
@@ -304,16 +310,14 @@ class Map(arcade.Window):
                               self.up_arrow_sprite_path, self.down_arrow_sprite_path]
 
     def setup_cave_1(self):
-        # TODO adjust ranges to start following the player from further away
-        # TODO possibly decrease how many enemies total and increase value of drops?
-        goblin1 = GoblinEnemy.setup_goblin(1, 672, 224, "coin", 1, 300, 1, 1, 1)
-        goblin2 = GoblinEnemy.setup_goblin(1, 160, 800, "coin", 1, 300, 1, 1, 1)
-        goblin3 = GoblinEnemy.setup_goblin(1, 160, 288, "coin", 1, 300, 1, 1, 1)
-        goblin4 = GoblinEnemy.setup_goblin(1, 800, 800, "coin", 1, 300, 1, 1, 1)
-        wyvern1 = WyvernEnemy.setup_wyvern(.9, 288, 160, "ruby", 2, 300, 1, 1, 1)
-        wyvern2 = WyvernEnemy.setup_wyvern(.9, 736, 544, "ruby", 2, 300, 1, 1, 1)
-        wyvern3 = WyvernEnemy.setup_wyvern(.9, 480, 672, "ruby", 2, 300, 1, 1, 1)
-        wyvern4 = WyvernEnemy.setup_wyvern(.9, 480, 352, "ruby", 2, 300, 1, 1, 1)
+        goblin1 = GoblinEnemy.setup_goblin(1, 672, 224, "coin", 1, 300, 1, 1)
+        goblin2 = GoblinEnemy.setup_goblin(1, 160, 800, "coin", 1, 300, 1, 1)
+        goblin3 = GoblinEnemy.setup_goblin(1, 160, 288, "coin", 1, 300, 1, 1)
+        goblin4 = GoblinEnemy.setup_goblin(1, 800, 800, "coin", 1, 300, 1, 1)
+        wyvern1 = WyvernEnemy.setup_wyvern(.9, 288, 160, ["ruby", "potion"], 2, 300, 1, 1)
+        wyvern2 = WyvernEnemy.setup_wyvern(.9, 736, 544, ["ruby", "potion"], 2, 300, 1, 1)
+        wyvern3 = WyvernEnemy.setup_wyvern(.9, 480, 672, ["ruby", "potion"], 2, 300, 1, 1)
+        wyvern4 = WyvernEnemy.setup_wyvern(.9, 480, 352, ["ruby", "potion"], 2, 300, 1, 1)
         self.cave_1_enemies.append(goblin1)
         self.cave_1_enemies.append(goblin2)
         self.cave_1_enemies.append(goblin3)
@@ -357,18 +361,25 @@ class Map(arcade.Window):
         for proj in self.character_projectile_list:
             collisions = arcade.check_for_collision_with_list(proj, self.cave_1_enemies)
             if len(collisions) > 0:
-                collisions[0].health -= 1
+                enemy: Enemy = collisions[0]  # indirectly referencing collisions[0] to avoid pycharm warning
+                enemy.health -= 1
                 proj.kill()
+                drop_index = enemy.drop_index
 
-                if collisions[0].health == 0:
-                    collisions[0].kill()
+                if enemy.health == 0:
+                    enemy.kill()
 
-                    if collisions[0].drop == "coin":
-                        coin = create_coin_drop(collisions[0].center_x, collisions[0].center_y)
+                    if enemy.drops[drop_index] == "coin":
+                        coin = create_coin_drop(enemy.center_x, enemy.center_y)
                         self.enemy_drop_list.append(coin)
-                    elif collisions[0].drop == "ruby":
-                        ruby = create_ruby_drop(collisions[0].center_x, collisions[0].center_y)
+                    elif enemy.drops[drop_index] == "ruby":
+                        ruby_path = pathlib.Path.cwd() / 'Assets' / 'Item_Drops' / 'Ruby' / 'ruby2.png'
+                        ruby = create_other_drop(enemy.center_x, enemy.center_y, ruby_path, 24, 24)
                         self.enemy_drop_list.append(ruby)
+                    elif enemy.drops[drop_index] == "potion":
+                        potion_path = pathlib.Path.cwd() / 'Assets' / 'Item_Drops' / 'Potion' / 'potion.png'
+                        potion = create_other_drop(enemy.center_x, enemy.center_y, potion_path, 26, 33)
+                        self.enemy_drop_list.append(potion)
 
         # check for collision between character and enemies
         enemy_collisions = arcade.check_for_collision_with_list(self.character, self.cave_1_enemies)
@@ -413,6 +424,10 @@ class Map(arcade.Window):
         self.pickup_drops()
 
     def cave_2_update(self):
+        if self.golem_roar is True and len(self.golem_list) > 0:
+            self.golem_attack_sound.play()
+            self.golem_roar = False
+
         self.golem_list.update_animation()
 
         # ROOM EXITING
@@ -420,6 +435,7 @@ class Map(arcade.Window):
             self.current_map = self.cave_1_open
             self.process_map()
             # set character to opening of cave_1
+            self.golem_roar = True
             self.character.center_y = (64 * 7) + 32
             self.character.center_x = (64 * 14) + 32
 
@@ -472,14 +488,19 @@ class Map(arcade.Window):
     def pickup_drops(self):
         collisions = arcade.check_for_collision_with_list(self.character, self.enemy_drop_list)
         if len(collisions) > 0 and self.character.money < 600:
-            if len(collisions[0].textures) == 7:  # rubies
-                self.ruby_sound.play()
+            if collisions[0].width == 32:  # coins
+                self.coin_sound.play()
                 self.character.money += 50
                 collisions[0].kill()
-            elif len(collisions[0].textures) == 9:  # coins
-                self.coin_sound.play()
-                self.character.money += 25
+            elif collisions[0].width == 24:  # rubies
+                self.ruby_sound.play()
+                self.character.money += 75
                 collisions[0].kill()
+            elif collisions[0].width == 26:  # potions
+                self.ruby_sound.play()
+                collisions[0].kill()
+                if self.character.health < 5:  # max of 5 health
+                    self.character.health += 1
 
         if self.character.money > 600:
             self.character.money = 600
@@ -496,9 +517,9 @@ class Map(arcade.Window):
                 if self.character.arrows > 45:
                     self.character.arrows = 45
         elif 64 * 11 <= self.character.center_x <= 64 * 12 and 64 * 4 <= self.character.center_y <= 64 * 5:
-            if self.character.money >= 350 and not self.character.magic_book:
+            if self.character.money >= 300 and not self.character.magic_book:
                 self.character.magic_book = True
-                self.character.money -= 350
+                self.character.money -= 300
                 self.sell_buy_item_sound.play()
                 if self.item_list == "":
                     self.item_list = "Magic Book, "
@@ -533,12 +554,11 @@ def create_coin_drop(x, y):
     return coin
 
 
-def create_ruby_drop(x, y):
-    path = pathlib.Path.cwd() / 'Assets' / 'Item_Drops' / 'Ruby' / 'ruby2.png'
-    ruby = arcade.AnimatedTimeSprite(1, center_x=x, center_y=y)
-    ruby_frames = []
+def create_other_drop(x, y, path, width, height):
+    drop = arcade.AnimatedTimeSprite(1, center_x=x, center_y=y)
+    drop_frames = []
     for col in range(7):
-        frame = arcade.load_texture(str(path), x=col * 24, y=0, width=24, height=24)
-        ruby_frames.append(frame)
-    ruby.textures = ruby_frames
-    return ruby
+        frame = arcade.load_texture(str(path), x=col * width, y=0, width=width, height=height)
+        drop_frames.append(frame)
+    drop.textures = drop_frames
+    return drop

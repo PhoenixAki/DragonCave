@@ -18,15 +18,16 @@ press <Enter>.
 
 After hearing your quest, enter the cave to the north. Make sure to buy some arrows first! The cave entrance leads to
 the first cave room. Goblin and Wyvern enemies are in this room. They will chase you down if you get too close.
-Defeat these enemies to obtain coins and rubies which can be used to buy items from the shop. When the enemies in this
-room are defeated, the east wall will open. The opening leads to the Golem boss room. The Golem will quickly chase you
- and destroy you if you do not have the Boots (sold at the shop). Also, you need to buy the Magic Book to upgrade your
- arrows to fire magic in order to damage the Golem. The golem is immune to regular arrows, so make sure to have the
- magic book first. If you run out of arrows, you can buy more at the shop.
+Defeat these enemies to obtain coins and rubies which can be used to buy items from the shop. Occasionally, Wyverns
+may drop potions which will heal you for +1. When the enemies in this room are defeated, the east wall will open. The
+opening leads to the Golem boss room. The Golem will quickly chase you and destroy you if you do not have the
+Boots (sold at the shop). Also, you need to buy the Magic Book to upgrade your arrows to fire magic in order to
+damage the Golem. The golem is immune to regular arrows, so make sure to have the magic book first. If you run out
+of arrows, you can buy more at the shop.
 
 After defeating the Golem, a key will appear. Take the key and use it to open the chest in the north-east corner of
 the Golem room. Face the chest from the bottom and press <Enter>; if you have the key, the chest will open, and the
-Sacred Crystal will appear from the chest. Take the crystal back to the Quest NPC to finish the quest.
+Sacred Crystal will appear from the chest. Take the crystal back to the Quest NPC to finish the game.
 
 **Controls**:
 Up arrow key / W	Walk up
@@ -40,11 +41,12 @@ Escape key		Close game and exit
 
 **Health**:
 The player has three hit points (HP). Contact with enemies reduce the player’s HP by one. There is a brief invincibility
- period after getting hit.
+ period after getting hit. Wyverns in the first cave will occasionally drop potions that will heal the player by +1 health.
+ The player can have up to 5 health.
 
 **Money**:
 The player starts with 50 money and 0 arrows. Use the 50 money to buy some arrows before going into the cave! Coins are
-worth 25 and rubies are worth 50.
+worth 50 and rubies are worth 75.
 
 **Movement**:
 Holding the up arrow moves your player up. Down moves down. Left and right arrow moves the player left and right
@@ -52,7 +54,7 @@ respectively. The player is restricted to the map areas and cannot move off the 
 Once the Boots are purchased the players movement speed is increased.
 
 **Combat**:
-Pressing the spacebar will cause the player to shoot an arrow. When close to the player, enemies will stop moving and
+Pressing the space bar will cause the player to shoot an arrow. When close to the player, enemies will stop moving and
 attack the player. NOTE: attack animations are not working due to unresolved errors, but they still damage the player.
 The player can hold up to 45 arrows at a time.
 
@@ -61,10 +63,11 @@ The player can hold up to 600 worth of coins and rubies. He can also hold the ma
  arrows), boots (increases speed), the boss key, and the crystal.
 
 +++ NOTES +++:
-Enemies have two modes - "Attack" and "Roam".
-In "Attack" mode, the enemies will find the fastest path to the player and attack.
+Enemies have two modes - "Attack" and "Roaming".
+In "Attack" mode, the enemies will find the shortest path to the player using Breadth First Search and attack when close.
 If the player is hurt, he enters an "invincibility" mode for a short time. During player invincibility, the enemies
-will go back to "Roam". When the invincibility period ends, all enemies in range will find the shortest path and attack.
+will go back to "Roaming". When the invincibility period ends, all enemies in range will return to "Attack" mode and resume
+finding the shortest path and attacking.
 +++++++++++++
 
 ========================================================

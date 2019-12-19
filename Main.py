@@ -82,7 +82,7 @@ def process_xml(path):
 def flood_fill(node: Node, graph, layer_map):
     """Checks all 4 directions for walls, empty spaces, or other nodes to connect to. Returns the filled in graph."""
     global CUR_ID
-    print(CUR_ID)
+
     # look left
     if node.x_node_loc > 0 and layer_map[node.y_node_loc][node.x_node_loc - 1] != 0:
         if graph[node.y_node_loc][node.x_node_loc - 1] is None:
@@ -148,8 +148,8 @@ def flood_fill(node: Node, graph, layer_map):
 def main():
     cave_1_graph, cave_2_graph = graph_setup()
 
-    # TODO remove this print block once testing is done
-    builder = ""
+    # TODO uncomment these print blocks to display the 2 graphs with node IDs
+    '''builder = ""
     for y in cave_1_graph:
         for x in y:
             if x is not None:
@@ -177,7 +177,7 @@ def main():
             else:
                 builder += "x   "
         builder += "\n"
-    print(builder)
+    print(builder)'''
 
     window: RPG_Map.Map = RPG_Map.Map(cave_1_graph, cave_2_graph)
     window.setup()

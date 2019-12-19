@@ -10,12 +10,8 @@ from Enemy import Enemy
 
 class GoblinEnemy(Enemy):
     """One of the 2 enemy types that appear in Cave 1. Has 1 health and deals 1 damage to the player."""
-    def __init__(self, scale: float, center_x: float, center_y: float, health: int, init_range: int, speed: int, change_x: int, change_y: int):
-        super().__init__(scale, center_x, center_y, health, init_range, speed, change_x, change_y)
-
-        self.cur_texture_index = 0
-        self.texture_list = None
-        self.drop = None
+    def __init__(self, scale, center_x, center_y, health, init_range, change_x, change_y):
+        super().__init__(scale, center_x, center_y, health, init_range, change_x, change_y)
 
     def update_animation(self, delta_time=1/10):
         """
@@ -77,8 +73,8 @@ class GoblinEnemy(Enemy):
             self.texture = texture_list[self.cur_texture_index]
 
 
-def setup_goblin(scl, cent_x, cent_y, drop, health, init_range, speed, change_x, change_y):
-    goblin = GoblinEnemy(scl, cent_x, cent_y, health, init_range, speed, change_x, change_y)
+def setup_goblin(scl, cent_x, cent_y, drop, health, init_range, change_x, change_y):
+    goblin = GoblinEnemy(scl, cent_x, cent_y, health, init_range, change_x, change_y)
 
     # get sprite sheet path
     sprite_sheet_path = pathlib.Path.cwd() / 'Assets' / 'Enemies' / 'goblinsword.png'
@@ -107,6 +103,6 @@ def setup_goblin(scl, cent_x, cent_y, drop, health, init_range, speed, change_x,
                                     width=goblin_frame_width)
         goblin.walk_down_textures.append(frame)
 
-    goblin.drop = drop
+    goblin.drops[0] = drop
     goblin.texture = goblin.walk_left_textures[0]
     return goblin

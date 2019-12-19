@@ -1,5 +1,6 @@
 import math
 import pathlib
+import random
 from typing import List
 
 import arcade
@@ -10,15 +11,10 @@ from Enemy import Enemy
 
 class WyvernEnemy(Enemy):
     """One of the 2 enemy types that appear in Cave 1. Has 2 health and deals 1 damage to the player."""
-    def __init__(self, scale: float, center_x: float, center_y: float, health: int, init_range: int, change_x, change_y, speed: int):
-        super().__init__(scale, center_x, center_y, health, init_range, change_x, change_y, speed)
-
-        self.walking_x = 0
-        self.walking_y = 0
+    def __init__(self, scale, center_x, center_y, health, init_range, change_x, change_y):
+        super().__init__(scale, center_x, center_y, health, init_range, change_x, change_y)
 
         self.cur_texture_index = 0
-        self.drop = None
-        self.attacking = False
 
     def update_animation(self, delta_time=1/30):
         """
@@ -81,8 +77,8 @@ class WyvernEnemy(Enemy):
             self.texture = texture_list[self.cur_texture_index]
 
 
-def setup_wyvern(scl, cent_x, cent_y, drop, health, init_range, change_x, change_y, speed):
-    wyvern = WyvernEnemy(scl, cent_x, cent_y, health, init_range, change_x, change_y, speed)
+def setup_wyvern(scl, cent_x, cent_y, drops, health, init_range, change_x, change_y):
+    wyvern = WyvernEnemy(scl, cent_x, cent_y, health, init_range, change_x, change_y)
     
     # get sprite sheet paths
     left_textures_path = pathlib.Path.cwd() / 'Assets' / 'Enemies' / 'Wyvern' / 'reddragonfly_l.png'
@@ -115,5 +111,8 @@ def setup_wyvern(scl, cent_x, cent_y, drop, health, init_range, change_x, change
                                         width=wyvern_frame_width)
             wyvern.walk_down_textures.append(frame)
 
-    wyvern.drop = drop
+    wyvern.drops[0] = drops[0]
+    wyvern.drops[1] = drops[1]
+    wyvern.drop_index = random.randint(0, 1)  # can drop either potion or ruby at random
+
     return wyvern
