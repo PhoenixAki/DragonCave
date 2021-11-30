@@ -1,6 +1,5 @@
-﻿Joe Matta
+Joe Matta
 Sean Stanley
-Sethia Lochard
 
 2D Game Design Project
 “Dragoncave”
@@ -69,34 +68,3 @@ If the player is hurt, he enters an "invincibility" mode for a short time. Durin
 will go back to "Roaming". When the invincibility period ends, all enemies in range will return to "Attack" mode and resume
 finding the shortest path and attacking.
 +++++++++++++
-
-========================================================
-- Obtaining the game source code from GitHub:
-
-    from the command prompt, navigate to the desired destination folder,
-    and enter the following line:
-
-    $ git clone https://github.com/jmatta697/2D_RPG
-
-- Running the game:
-
-    navigate to the clone destination folder targeted in the previous step,
-    and change current directory to '2D_RPG':
-
-    $ cd 2D_RPG
-
-    then ensure that arcade is installed via:
-
-    $ pip3 install arcade
-
-    then run the program by entering the following line:
-
-    $ python Main.py
-
-    The game will launch. A 960 x 960 window will appear with the Forest opening scene.
-========================================================
-SYSTEM REQUIREMENTS:
-	- “Arcade” game graphics library version 2.1.7
-	- PyTiled 0.9.0
-	- Python 3.7
-
