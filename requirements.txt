@@ -1,0 +1,4 @@
+arcade==2.1.7
+pytiled-parser==0.9.0
+pyglet==1.4.6
+pyglet-ffmpeg2==0.1.15

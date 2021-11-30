@@ -97,5 +97,6 @@ finding the shortest path and attacking.
 ========================================================
 SYSTEM REQUIREMENTS:
 	- “Arcade” game graphics library version 2.1.7
+	- PyTiled 0.9.0
 	- Python 3.7
 

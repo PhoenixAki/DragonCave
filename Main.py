@@ -66,7 +66,7 @@ def process_xml(path):
     for row_data in tile_matrix_row_list:
         # split based on comma to get each element, and append to matrix
         row = row_data.split(',')
-        clean_row = [int(i) for i in row if i is not '']
+        clean_row = [int(i) for i in row if i != '']
         layer_matrix.append(clean_row)
 
     graph = []
