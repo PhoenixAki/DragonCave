@@ -1,6 +1,3 @@
-Joe Matta
-Sean Stanley
-
 2D Game Design Project
 “Dragoncave”
 				
