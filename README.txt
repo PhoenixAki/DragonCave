@@ -1,3 +1,5 @@
+Note: Run on Python 3.7.x (we used 3.7.9) for Arcade compatability.
+
 2D Game Design Project
 “Dragoncave”
 				
